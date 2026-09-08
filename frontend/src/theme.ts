@@ -84,7 +84,13 @@ export function setColorScheme(scheme: ColorScheme | null) {
   Appearance.setColorScheme?.(scheme);
 }
 
-setColorScheme?.(themes.dark ? null : defaultScheme);
+// Keep native surfaces on the schemes this app ships. If we only ship light,
+// force light. When a dark theme exists we let the device decide — but we must
+// NOT call setColorScheme(null) on native, as AppearanceModule.setColorScheme
+// rejects a null parameter and crashes on Android.
+if (!themes.dark) {
+  setColorScheme?.(defaultScheme);
+}
 
 export function useTheme(): { scheme: ColorScheme; colors: ThemeColors } {
   const system = useColorScheme();

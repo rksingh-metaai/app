@@ -12,6 +12,7 @@ from datetime import datetime, timezone, timedelta
 import uuid
 import bcrypt
 import jwt
+import calendar
 
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
@@ -112,6 +113,21 @@ class AccountCreate(BaseModel):
     type: str = "bank"  # bank, cash, card, wallet, investment
     balance: float = 0.0
     color: Optional[str] = None
+
+
+class AccountUpdate(BaseModel):
+    name: Optional[str] = None
+    type: Optional[str] = None
+    balance: Optional[float] = None
+    color: Optional[str] = None
+
+
+class BillCreate(BaseModel):
+    name: str
+    amount: float
+    category: str = "bills"
+    due_day: int = 1  # day of month (1-31)
+    account_id: Optional[str] = None
 
 
 class TransactionCreate(BaseModel):
@@ -229,6 +245,19 @@ async def seed_user_data(user_id: str):
     } for n, t, s in goals]
     await db.goals.insert_many(gdocs)
 
+    bills = [
+        ("House Rent", 15000, "bills", 5, acc1["id"]),
+        ("Electricity Bill", 1800, "bills", 10, acc1["id"]),
+        ("Internet / Broadband", 799, "bills", 15, acc1["id"]),
+        ("Mobile Recharge", 299, "bills", 20, acc2["id"]),
+    ]
+    bill_docs = [{
+        "id": str(uuid.uuid4()), "user_id": user_id, "name": n, "amount": float(a),
+        "category": c, "due_day": d, "account_id": aid, "last_paid": None,
+        "created_at": now_utc(), "deleted_at": None,
+    } for n, a, c, d, aid in bills]
+    await db.bills.insert_many(bill_docs)
+
 
 # ---------------------------------------------------------------------------
 # Auth routes
@@ -310,6 +339,17 @@ async def delete_account(account_id: str, user: dict = Depends(get_current_user)
         {"id": account_id, "user_id": user["id"]}, {"$set": {"deleted_at": now_utc()}}
     )
     return {"ok": True}
+
+
+@api_router.put("/accounts/{account_id}")
+async def update_account(account_id: str, body: AccountUpdate, user: dict = Depends(get_current_user)):
+    updates = {k: v for k, v in body.dict().items() if v is not None}
+    if updates:
+        await db.accounts.update_one(
+            {"id": account_id, "user_id": user["id"], "deleted_at": None}, {"$set": updates}
+        )
+    acc = await db.accounts.find_one({"id": account_id, "user_id": user["id"]})
+    return clean(acc) if acc else {"ok": True}
 
 
 # ---------------------------------------------------------------------------
@@ -481,6 +521,152 @@ async def dashboard_summary(user: dict = Depends(get_current_user)):
         "spending_by_category": spending,
         "recent_transactions": [clean(t) for t in recent],
     }
+
+
+# ---------------------------------------------------------------------------
+# Bills (recurring reminders)
+# ---------------------------------------------------------------------------
+def _clamp_date(year: int, month: int, day: int):
+    last = calendar.monthrange(year, month)[1]
+    return datetime(year, month, min(day, last), tzinfo=timezone.utc).date()
+
+
+def _bill_status(due_day: int, last_paid: Optional[str]):
+    today = datetime.now(timezone.utc).date()
+    y, m = today.year, today.month
+    paid_this_month = False
+    if last_paid:
+        try:
+            lp = datetime.fromisoformat(last_paid).date()
+            paid_this_month = lp.year == y and lp.month == m
+        except Exception:
+            paid_this_month = False
+
+    this_due = _clamp_date(y, m, due_day)
+    nm, ny = (m + 1, y) if m < 12 else (1, y + 1)
+    next_month_due = _clamp_date(ny, nm, due_day)
+
+    if paid_this_month:
+        nd = next_month_due
+    elif this_due < today:
+        nd = next_month_due
+    else:
+        nd = this_due
+    days_until = (nd - today).days
+    return nd.isoformat(), days_until, paid_this_month
+
+
+@api_router.get("/bills")
+async def get_bills(user: dict = Depends(get_current_user)):
+    bills = await db.bills.find({"user_id": user["id"], "deleted_at": None}).to_list(200)
+    result = []
+    for b in bills:
+        b = clean(b)
+        nd, days_until, paid = _bill_status(b.get("due_day", 1), b.get("last_paid"))
+        b["next_due"] = nd
+        b["days_until"] = days_until
+        b["paid_this_month"] = paid
+        result.append(b)
+    result.sort(key=lambda x: x["days_until"])
+    return result
+
+
+@api_router.post("/bills")
+async def create_bill(body: BillCreate, user: dict = Depends(get_current_user)):
+    b = {
+        "id": str(uuid.uuid4()), "user_id": user["id"], "name": body.name,
+        "amount": body.amount, "category": body.category,
+        "due_day": max(1, min(31, body.due_day)), "account_id": body.account_id,
+        "last_paid": None, "created_at": now_utc(), "deleted_at": None,
+    }
+    await db.bills.insert_one(b)
+    b = clean(b)
+    nd, days_until, paid = _bill_status(b["due_day"], None)
+    b["next_due"] = nd
+    b["days_until"] = days_until
+    b["paid_this_month"] = paid
+    return b
+
+
+@api_router.put("/bills/{bill_id}")
+async def update_bill(bill_id: str, body: BillCreate, user: dict = Depends(get_current_user)):
+    updates = {
+        "name": body.name, "amount": body.amount, "category": body.category,
+        "due_day": max(1, min(31, body.due_day)), "account_id": body.account_id,
+    }
+    await db.bills.update_one(
+        {"id": bill_id, "user_id": user["id"], "deleted_at": None}, {"$set": updates}
+    )
+    return {"ok": True}
+
+
+@api_router.post("/bills/{bill_id}/pay")
+async def pay_bill(bill_id: str, user: dict = Depends(get_current_user)):
+    bill = await db.bills.find_one({"id": bill_id, "user_id": user["id"], "deleted_at": None})
+    if not bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+    await db.bills.update_one({"id": bill_id}, {"$set": {"last_paid": now_utc()}})
+    # log a transaction
+    txn = {
+        "id": str(uuid.uuid4()), "user_id": user["id"], "account_id": bill.get("account_id"),
+        "title": bill["name"], "amount": float(bill["amount"]), "type": "expense",
+        "category": bill.get("category", "bills"), "note": "Bill payment",
+        "date": now_utc(), "created_at": now_utc(), "deleted_at": None,
+    }
+    await db.transactions.insert_one(txn)
+    if bill.get("account_id"):
+        await db.accounts.update_one(
+            {"id": bill["account_id"], "user_id": user["id"]}, {"$inc": {"balance": -float(bill["amount"])}}
+        )
+    return {"ok": True}
+
+
+@api_router.delete("/bills/{bill_id}")
+async def delete_bill(bill_id: str, user: dict = Depends(get_current_user)):
+    await db.bills.update_one(
+        {"id": bill_id, "user_id": user["id"]}, {"$set": {"deleted_at": now_utc()}}
+    )
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Spending trends (month over month)
+# ---------------------------------------------------------------------------
+@api_router.get("/dashboard/trends")
+async def spending_trends(user: dict = Depends(get_current_user)):
+    now = datetime.now(timezone.utc)
+    keys = []
+    for i in range(5, -1, -1):
+        mm = now.month - i
+        yy = now.year
+        while mm <= 0:
+            mm += 12
+            yy -= 1
+        keys.append((yy, mm))
+
+    txns = await db.transactions.find(
+        {"user_id": user["id"], "deleted_at": None}
+    ).to_list(5000)
+    buckets = {(yy, mm): {"income": 0.0, "expense": 0.0} for (yy, mm) in keys}
+    for t in txns:
+        try:
+            dt = datetime.fromisoformat(t["date"])
+        except Exception:
+            continue
+        key = (dt.year, dt.month)
+        if key in buckets and t["type"] in ("income", "expense"):
+            buckets[key][t["type"]] += t["amount"]
+
+    months = [
+        {
+            "year": yy,
+            "month": mm,
+            "income": buckets[(yy, mm)]["income"],
+            "expense": buckets[(yy, mm)]["expense"],
+        }
+        for (yy, mm) in keys
+    ]
+    return {"months": months}
 
 
 # ---------------------------------------------------------------------------

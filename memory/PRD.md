@@ -27,19 +27,23 @@ Build an Android application in the fintech domain with app localization in majo
 
 ## Implemented (2026-06)
 - Onboarding language picker (native scripts, no flags).
-- JWT register/login; new users auto-seeded with 3 accounts, 12 transactions, 4 budgets, 3 goals.
-- Dashboard with gradient balance hero, donut spending chart, quick actions, recent transactions, pull-to-refresh.
-- Transactions tab: search, filter chips (All/Income/Expense), delete, FAB → add-transaction modal (type toggle, amount, category grid, account chips, note).
+- JWT register/login; new users auto-seeded with 3 accounts, 12 transactions, 4 budgets, 3 goals, 4 bills.
+- Dashboard with gradient balance hero, donut spending chart, quick actions (Add Expense/Income, Accounts, Bills), spending-trends card, upcoming-bills preview, recent transactions, pull-to-refresh.
+- Transactions tab: search, filter chips (All/Income/Expense), delete, FAB → add-transaction modal.
 - Budgets tab: monthly budgets with progress bars, savings goals with add-money; add-budget / add-goal modals.
-- AI Money Assistant chat (suggestion chips, history persistence, multilingual replies).
+- AI Money Assistant chat (multilingual replies, history persistence).
 - Settings: profile, in-app language switcher (live), currency, logout.
-- Full backend test suite: 14/14 pytest passing. Frontend flows verified.
+- Accounts screen: add / rename / edit / delete accounts (bank, cash, card, wallet, investment).
+- Bill Reminders: recurring monthly bills with due-day, days-until badges, mark-paid (logs expense + deducts balance), add/edit/delete.
+- Spending Trends: month-over-month income vs expense chart (last 6 months) + averages.
+- Fixed Android launch crash (AppearanceModule.setColorScheme null) in src/theme.ts.
+- Full backend test suite: 22/22 pytest passing. All frontend flows verified.
 
 ## Backlog / Remaining
-- P1: Multiple currency support beyond INR; account management screen (add/edit accounts).
+- P1: Multiple currency support beyond INR.
 - P1: Edit existing transactions; transaction date picker.
-- P2: Recurring transactions & bill reminders; export/statement.
-- P2: Biometric app lock; charts for income trends over months.
+- P2: Weekly/yearly bill frequencies; bill payment history view.
+- P2: Biometric app lock.
 
 ## Next Tasks
 - Gather user feedback on language coverage and any additional Indic languages.

@@ -18,8 +18,10 @@ import {
   PiggyBank,
   Plus,
   Minus,
-  Sparkle,
-  Target,
+  Bank,
+  Receipt,
+  CaretRight,
+  Clock,
 } from "phosphor-react-native";
 
 import { makeStyles, useTheme } from "@/src/theme";
@@ -29,6 +31,7 @@ import { api } from "@/src/api/client";
 import { formatCurrency, formatDate, categoryLabelKey } from "@/src/lib/format";
 import { DonutChart } from "@/src/components/DonutChart";
 import { CategoryIcon } from "@/src/components/CategoryIcon";
+import { TrendBars, MonthPoint } from "@/src/components/TrendBars";
 
 type Summary = {
   total_balance: number;
@@ -59,6 +62,18 @@ export default function Dashboard() {
     queryFn: () => api.get("/dashboard/summary"),
   });
 
+  const trendsQ = useQuery<{ months: MonthPoint[] }>({
+    queryKey: ["trends"],
+    queryFn: () => api.get("/dashboard/trends"),
+  });
+
+  const billsQ = useQuery<
+    { id: string; name: string; amount: number; days_until: number; paid_this_month: boolean }[]
+  >({
+    queryKey: ["bills"],
+    queryFn: () => api.get("/bills"),
+  });
+
   const greeting = () => {
     const h = new Date().getHours();
     if (h < 12) return t("good_morning");
@@ -69,8 +84,8 @@ export default function Dashboard() {
   const quickActions = [
     { key: "add_expense", icon: Minus, onPress: () => router.push({ pathname: "/add-transaction", params: { type: "expense" } }) },
     { key: "add_income", icon: Plus, onPress: () => router.push({ pathname: "/add-transaction", params: { type: "income" } }) },
-    { key: "ask_ai", icon: Sparkle, onPress: () => router.push("/(tabs)/assistant") },
-    { key: "view_goals", icon: Target, onPress: () => router.push("/(tabs)/budgets") },
+    { key: "accounts", icon: Bank, onPress: () => router.push("/accounts") },
+    { key: "bills", icon: Receipt, onPress: () => router.push("/bills") },
   ] as const;
 
   return (
@@ -210,6 +225,64 @@ export default function Dashboard() {
               </View>
             )}
           </View>
+
+          {/* Spending trends */}
+          <Pressable style={styles.recentHeader} onPress={() => router.push("/trends")} testID="open-trends">
+            <Text style={styles.sectionTitle}>{t("spending_trends")}</Text>
+            <View style={styles.seeAllRow}>
+              <Text style={styles.seeAll}>{t("see_all")}</Text>
+              <CaretRight size={14} color={colors.brandPrimary} weight="bold" />
+            </View>
+          </Pressable>
+          <Pressable style={styles.card} onPress={() => router.push("/trends")}>
+            <Text style={styles.trendCaption}>{t("last_6_months")}</Text>
+            <TrendBars months={trendsQ.data?.months ?? []} lang={lang} showIncome={false} height={120} />
+          </Pressable>
+
+          {/* Upcoming bills */}
+          {(billsQ.data?.length ?? 0) > 0 ? (
+            <>
+              <Pressable style={styles.recentHeader} onPress={() => router.push("/bills")} testID="open-bills">
+                <Text style={styles.sectionTitle}>{t("upcoming_bills")}</Text>
+                <View style={styles.seeAllRow}>
+                  <Text style={styles.seeAll}>{t("see_all")}</Text>
+                  <CaretRight size={14} color={colors.brandPrimary} weight="bold" />
+                </View>
+              </Pressable>
+              <View style={styles.card}>
+                {(billsQ.data ?? [])
+                  .filter((b) => !b.paid_this_month)
+                  .slice(0, 3)
+                  .map((b, i, arr) => (
+                    <View
+                      key={b.id}
+                      style={[styles.txRow, i < arr.length - 1 && styles.txRowBorder]}
+                      testID={`upcoming-bill-${b.id}`}
+                    >
+                      <View style={[styles.txIcon, { backgroundColor: colors.brandTertiary }]}>
+                        <Receipt size={20} color={colors.brand} weight="fill" />
+                      </View>
+                      <View style={styles.txMid}>
+                        <Text style={styles.txTitle} numberOfLines={1}>
+                          {b.name}
+                        </Text>
+                        <View style={styles.billDueRow}>
+                          <Clock size={12} color={colors.muted} weight="fill" />
+                          <Text style={styles.txDate}>
+                            {b.days_until === 0
+                              ? t("due_today")
+                              : b.days_until === 1
+                                ? t("due_tomorrow")
+                                : `${t("due_in")} ${b.days_until} ${t("days")}`}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={styles.txAmount}>{formatCurrency(b.amount)}</Text>
+                    </View>
+                  ))}
+              </View>
+            </>
+          ) : null}
 
           {/* Recent transactions */}
           <View style={styles.recentHeader}>
@@ -363,6 +436,9 @@ const useStyles = makeStyles((colors) => ({
   legendValue: { fontSize: 13, fontWeight: "700", color: colors.onSurface },
   recentHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   seeAll: { color: colors.brandPrimary, fontSize: 13, fontWeight: "700", marginTop: 20, marginBottom: 12 },
+  seeAllRow: { flexDirection: "row", alignItems: "center", gap: 3 },
+  trendCaption: { fontSize: 12, color: colors.muted, fontWeight: "600", marginBottom: 16 },
+  billDueRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
   txRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
   txRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.divider },
   txIcon: { width: 42, height: 42, borderRadius: 12, alignItems: "center", justifyContent: "center" },
