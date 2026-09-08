@@ -1,0 +1,224 @@
+{
+  "app_name": "IndicFinance",
+  "personality": "1 iOS-Native Clean",
+  "personality_one_liner": "A modern, highly readable, and trustworthy fintech experience prioritizing clarity and cross-linguistic legibility over decorative noise.",
+  "color": {
+    "light": {
+      "surface": "#FFFFFF",
+      "onSurface": "#171717",
+      "surfaceSecondary": "#F5F5F5",
+      "onSurfaceSecondary": "#262626",
+      "surfaceTertiary": "#E5E5E5",
+      "onSurfaceTertiary": "#404040",
+      "surfaceInverse": "#171717",
+      "onSurfaceInverse": "#FFFFFF",
+      "brand": "#064E3B",
+      "onBrand": "#FFFFFF",
+      "brandPrimary": "#059669",
+      "onBrandPrimary": "#FFFFFF",
+      "brandSecondary": "#34D399",
+      "onBrandSecondary": "#064E3B",
+      "brandTertiary": "#D1FAE5",
+      "onBrandTertiary": "#064E3B",
+      "success": "#16A34A",
+      "onSuccess": "#FFFFFF",
+      "warning": "#D97706",
+      "onWarning": "#FFFFFF",
+      "error": "#DC2626",
+      "onError": "#FFFFFF",
+      "info": "#4B5563",
+      "onInfo": "#FFFFFF",
+      "border": "#E5E5E5",
+      "borderStrong": "#D4D4D4",
+      "divider": "#F5F5F5",
+      "muted": "#737373"
+    },
+    "dark": {
+      "surface": "#171717",
+      "onSurface": "#F5F5F5",
+      "surfaceSecondary": "#262626",
+      "onSurfaceSecondary": "#E5E5E5",
+      "surfaceTertiary": "#404040",
+      "onSurfaceTertiary": "#D4D4D4",
+      "surfaceInverse": "#FFFFFF",
+      "onSurfaceInverse": "#171717",
+      "brand": "#059669",
+      "onBrand": "#FFFFFF",
+      "brandPrimary": "#10B981",
+      "onBrandPrimary": "#064E3B",
+      "brandSecondary": "#047857",
+      "onBrandSecondary": "#FFFFFF",
+      "brandTertiary": "#064E3B",
+      "onBrandTertiary": "#D1FAE5",
+      "success": "#22C55E",
+      "onSuccess": "#FFFFFF",
+      "warning": "#F59E0B",
+      "onWarning": "#FFFFFF",
+      "error": "#EF4444",
+      "onError": "#FFFFFF",
+      "info": "#9CA3AF",
+      "onInfo": "#171717",
+      "border": "#404040",
+      "borderStrong": "#525252",
+      "divider": "#262626",
+      "muted": "#A3A3A3"
+    }
+  },
+  "typography": {
+    "displayFontFamily": "Plus Jakarta Sans",
+    "textFontFamily": "Plus Jakarta Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Handle spacing correctly dont have extra spaces where its not required, handle padding and margin corectly and subtle for buttons and components",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "1",
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": true,
+    "do's": [
+      "Bottom tab bar (when content scrolls behind it)",
+      "Sticky headers over scrolling content",
+      "Floating action buttons (FAB)",
+      "Bottom-sheet headers and drag handles",
+      "Featured / hero cards frosted glass overlay sitting on a brand-tinted backdrop"
+    ],
+    "dont's": [
+      "Every button",
+      "List rows",
+      "Chips",
+      "Cards in dense lists",
+      "Form inputs",
+      "Body content"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Onboarding & Language Picker",
+      "purpose": "Introduce the app and allow the user to select their preferred language using native scripts.",
+      "states": {
+        "loading": "Centered spinner",
+        "empty": "N/A",
+        "error": "Error message with retry button"
+      },
+      "layout": "Full-bleed background or large hero image. A structured bottom sheet or list for language selection displaying native names (हिंदी, தமிழ், etc.) without flags. Sticky primary CTA at the bottom."
+    },
+    {
+      "name": "Login & Register",
+      "purpose": "Secure email/password authentication.",
+      "states": {
+        "loading": "Button spinner or overlay",
+        "empty": "N/A",
+        "error": "Inline validation or toast messages"
+      },
+      "layout": "Clean single-column form layout. Labels above inputs. Sticky 'Continue' or 'Login' button at the bottom inside KeyboardAvoidingView."
+    },
+    {
+      "name": "Dashboard (Home)",
+      "purpose": "All-in-one personal finance overview showing total balance, income vs expense summary, and spending charts.",
+      "states": {
+        "loading": "Skeleton loaders for cards and charts",
+        "empty": "Illustration with prompt to add first account or transaction",
+        "error": "Readable error message with a 'Tap to retry' button"
+      },
+      "layout": "Hero card at the top displaying Total Balance (using gradient or glass overlay). Segmented control below to toggle views (e.g., This Month / Last Month). A horizontal scroll or grid for Quick Actions. A dedicated card for the spending category chart, followed by a preview of recent transactions."
+    },
+    {
+      "name": "Transactions",
+      "purpose": "Detailed chronological list of transactions with add/edit functionality.",
+      "states": {
+        "loading": "List skeleton",
+        "empty": "Empty wallet illustration, 'No transactions yet', and a primary CTA to add one.",
+        "error": "Error fetching transactions, retry button"
+      },
+      "layout": "Sticky header with search/filter icons. List rows with generous minimum tap heights (56pt). Each row displays an avatar (merchant initials or logo), transaction name, date, amount (color-coded polarity: green for deposit, default for withdrawal), and a status badge if needed. A FAB (Floating Action Button) anchored at bottom-right for 'Add Transaction'."
+    },
+    {
+      "name": "Accounts & Budgets",
+      "purpose": "List of linked accounts and progress trackers for savings goals.",
+      "states": {
+        "loading": "Skeleton loader for account cards",
+        "empty": "Illustration suggesting user to set up a budget or link an account",
+        "error": "Retry loading accounts"
+      },
+      "layout": "Multi-column grid (2-col) for smaller account cards or full-width stacked cards. Budgets use progress bars inside cards to indicate savings goal completion."
+    },
+    {
+      "name": "AI Money Assistant",
+      "purpose": "Chat interface for financial advice and queries.",
+      "states": {
+        "loading": "Typing indicator bubbles",
+        "empty": "Friendly AI robot illustration with suggested query chips (e.g., 'Analyze my spending').",
+        "error": "Message failed to send, tap to retry"
+      },
+      "layout": "Standard chat layout. Message bubbles differentiating user (brand color) vs AI (surfaceSecondary). Sticky input field at the bottom. Use abstract background for the chat area if needed."
+    }
+  ],
+  "images": {
+    "app_logo": {
+      "url": "https://images.unsplash.com/photo-1782916679042-dd2825f1da11?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMGxvZ298ZW58MHx8fHwxNzg4ODU3NjMwfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Abstract geometric logo"
+    },
+    "hero_background": {
+      "url": "https://images.unsplash.com/photo-1614851099511-773084f6911d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBhYnN0cmFjdCUyMGdyYWRpZW50JTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3ODg4NTc2MzB8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Modern abstract gradient background"
+    },
+    "empty_transactions": {
+      "url": "https://images.unsplash.com/photo-1614260938313-a7fc1a7ad0d2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxlbXB0eSUyMHdhbGxldCUyMGVtcHR5JTIwc3RhdGUlMjBpbGx1c3RyYXRpb258ZW58MHx8fHwxNzg4ODU3NjMwfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Empty wallet illustration"
+    },
+    "ai_avatar": {
+      "url": "https://images.unsplash.com/photo-1737644467636-6b0053476bb2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwxfHxmcmllbmRseSUyMGFpJTIwcm9ib3QlMjBhdmF0YXJ8ZW58MHx8fHwxNzg4ODU3NjMwfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Friendly AI robot avatar"
+    }
+  },
+  "haptics": {
+    "primary_button_press": "impactLight",
+    "tab_switch": "selection",
+    "transaction_added": "notificationSuccess",
+    "error_state": "notificationError",
+    "toggle_switch": "impactLight"
+  },
+  "instructions_to_main_agent": [
+    "Follow '1 iOS-Native Clean' principles: generous padding, clear hierarchical grouping, and focus on readable typography over decorative chrome. Avoid dense dashboard clutter.",
+    "BANNED COLORS: All blues (including navy, indigo, violet) are strictly prohibited. The brand palette uses Botanical / Forest Green tones to establish trust.",
+    "Typography & Localization: Use 'Plus Jakarta Sans' for Latin scripts. For Indic languages (Hindi, Tamil, Telugu, Bengali, Marathi), ensure proper system font fallbacks since custom geometric sans fonts may lack full Devanagari/Tamil glyphs. Test text rendering heavily.",
+    "Language Picker UI: Do not use country flags for languages. Use a globe icon and write language names in their native scripts (e.g., हिंदी, தமிழ், English).",
+    "Transaction Lists: Treat transaction metadata as first-class UI. Include merchant avatars (initials or fetched logos), color-coded amounts (+ in green, - in default text color), dates, and badges. Use a sticky FAB for adding transactions.",
+    "Hero/Featured Sections: Utilize the fetched 'hero_background' gradient with an overlay scrim (gradient-to-dark) if text is layered on top to guarantee WCAG contrast ratios. Use glassmorphism over the brand background for the primary balance card.",
+    "Ensure sticky CTA patterns: For long scrolling forms or setups (e.g., Onboarding, Add Transaction), pin the primary CTA to the bottom above the safe area, independent of the scrolling content.",
+    "AI Chat: Differentiate user and AI messages with surface colors (e.g., user gets brand-tinted bubble, AI gets surfaceSecondary). Include the AI avatar in the empty state."
+  ]
+}
