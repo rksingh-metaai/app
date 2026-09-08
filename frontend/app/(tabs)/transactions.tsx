@@ -153,7 +153,11 @@ export default function Transactions() {
           renderItem={({ item }) => {
             const color = CAT_COLORS[item.category] ?? "#737373";
             return (
-              <View style={styles.row} testID={`tx-row-${item.id}`}>
+              <Pressable
+                style={styles.row}
+                testID={`tx-row-${item.id}`}
+                onPress={() => router.push({ pathname: "/add-transaction", params: { id: item.id } })}
+              >
                 <View style={[styles.icon, { backgroundColor: `${color}22` }]}>
                   <CategoryIcon category={item.category} color={color} size={20} />
                 </View>
@@ -182,7 +186,7 @@ export default function Transactions() {
                 >
                   <Trash size={18} color={colors.muted} />
                 </Pressable>
-              </View>
+              </Pressable>
             );
           }}
         />

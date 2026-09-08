@@ -12,13 +12,23 @@ import { api } from "@/src/api/client";
 import {
   CATEGORY_COLORS,
   categoryLabelKey,
-  accountLabelKey,
   formatCurrency,
 } from "@/src/lib/format";
 import { CategoryIcon } from "@/src/components/CategoryIcon";
+import { DateStrip } from "@/src/components/DateStrip";
 import { useToast } from "@/src/components/Toast";
 
 type Account = { id: string; name: string; type: string; balance: number };
+type Txn = {
+  id: string;
+  account_id: string | null;
+  title: string;
+  amount: number;
+  type: string;
+  category: string;
+  note: string | null;
+  date: string;
+};
 
 const EXPENSE_CATS = ["food", "groceries", "shopping", "transport", "bills", "entertainment", "health", "other"];
 const INCOME_CATS = ["salary", "investment", "other"];
@@ -28,10 +38,12 @@ export default function AddTransaction() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const params = useLocalSearchParams<{ type?: string }>();
+  const params = useLocalSearchParams<{ type?: string; id?: string }>();
   const { t } = useI18n();
   const toast = useToast();
   const qc = useQueryClient();
+
+  const editing = !!params.id;
 
   const [type, setType] = useState<"income" | "expense">(
     params.type === "income" ? "income" : "expense",
@@ -41,14 +53,37 @@ export default function AddTransaction() {
   const [category, setCategory] = useState(type === "income" ? "salary" : "food");
   const [accountId, setAccountId] = useState<string | null>(null);
   const [note, setNote] = useState("");
+  const [date, setDate] = useState<string>(new Date().toISOString());
+  const [prefilled, setPrefilled] = useState(false);
 
   const accountsQ = useQuery<Account[]>({ queryKey: ["accounts"], queryFn: () => api.get("/accounts") });
+  const txListQ = useQuery<Txn[]>({
+    queryKey: ["transactions"],
+    queryFn: () => api.get("/transactions"),
+    enabled: editing,
+  });
 
   React.useEffect(() => {
-    if (accountsQ.data && accountsQ.data.length > 0 && !accountId) {
+    if (editing && !prefilled && txListQ.data) {
+      const found = txListQ.data.find((x) => x.id === params.id);
+      if (found) {
+        setType(found.type === "income" ? "income" : "expense");
+        setAmount(String(found.amount));
+        setTitle(found.title);
+        setCategory(found.category);
+        setAccountId(found.account_id);
+        setNote(found.note ?? "");
+        setDate(found.date);
+        setPrefilled(true);
+      }
+    }
+  }, [editing, prefilled, txListQ.data, params.id]);
+
+  React.useEffect(() => {
+    if (!editing && accountsQ.data && accountsQ.data.length > 0 && !accountId) {
       setAccountId(accountsQ.data[0].id);
     }
-  }, [accountsQ.data, accountId]);
+  }, [editing, accountsQ.data, accountId]);
 
   const cats = type === "income" ? INCOME_CATS : EXPENSE_CATS;
 
@@ -58,20 +93,26 @@ export default function AddTransaction() {
   };
 
   const save = useMutation({
-    mutationFn: () =>
-      api.post("/transactions", {
+    mutationFn: () => {
+      const payload = {
         type,
         amount: parseFloat(amount),
         title: title.trim(),
         category,
         account_id: accountId,
         note: note.trim() || null,
-      }),
+        date,
+      };
+      return editing
+        ? api.put(`/transactions/${params.id}`, payload)
+        : api.post("/transactions", payload);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["transactions"] });
       qc.invalidateQueries({ queryKey: ["summary"] });
       qc.invalidateQueries({ queryKey: ["accounts"] });
       qc.invalidateQueries({ queryKey: ["budgets"] });
+      qc.invalidateQueries({ queryKey: ["trends"] });
       toast.show(t("save"), "success");
       router.back();
     },
@@ -94,7 +135,7 @@ export default function AddTransaction() {
   return (
     <View style={styles.root}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Text style={styles.title}>{t("new_transaction")}</Text>
+        <Text style={styles.title}>{editing ? t("edit_transaction") : t("new_transaction")}</Text>
         <Pressable onPress={() => router.back()} hitSlop={10} style={styles.closeBtn} testID="add-tx-close">
           <X size={22} color={colors.onSurface} weight="bold" />
         </Pressable>
@@ -174,6 +215,10 @@ export default function AddTransaction() {
             );
           })}
         </View>
+
+        {/* date */}
+        <Text style={styles.label}>{t("date")}</Text>
+        <DateStrip value={date} onChange={setDate} />
 
         {/* account */}
         <Text style={styles.label}>{t("account")}</Text>
