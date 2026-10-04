@@ -219,6 +219,7 @@ def build() -> Dictionary:
         ("places.txt", 130),
         ("names.txt", 115),
         ("hinglish.txt", 105),
+        ("hinglish_vocab.txt", 115),
     ):
         for word, f in read_curated(name, default_f):
             d.recase(word, f, keep_lowercase)
@@ -254,7 +255,8 @@ def usable(d: Dictionary, *words: str) -> bool:
 def select_bigrams(d: Dictionary, limit: int) -> None:
     """Hand-written pairs first, then the pairs that occur most often."""
     chosen: dict[tuple[str, str], int] = {}
-    for row in read_lines(DATA / "bigrams.txt"):
+    curated_rows = read_lines(DATA / "bigrams.txt") + read_lines(DATA / "hinglish_bigrams.txt")
+    for row in curated_rows:
         first, second, f = row[0], row[1], int(row[2])
         if not usable(d, first, second):
             raise ValueError(f"bigrams.txt: {first} {second}: word not in the dictionary")
@@ -314,7 +316,7 @@ def write_trigrams_tsv(d: Dictionary, path: Path, limit: int = TRIGRAM_LIMIT) ->
 
     # Hand-written phrases first, then the most frequent ones.
     trigrams: dict[tuple[str, str, str], int] = {}
-    for row in read_lines(DATA / "trigrams.txt"):
+    for row in read_lines(DATA / "trigrams.txt") + read_lines(DATA / "hinglish_trigrams.txt"):
         key, f = (row[0], row[1], row[2]), int(row[3])
         for w in key:
             if not ok(w):

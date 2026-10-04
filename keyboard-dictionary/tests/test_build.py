@@ -164,3 +164,12 @@ def test_trigrams(d, tmp_path):
     assert "the" in rows[("one", "of")]
     assert "be" in rows[("want", "to")]
     assert "ho" in rows[("kar", "rahe")]
+
+
+def test_hinglish_coverage(e):
+    for word in ("kya", "hai", "nahi", "theek", "yaar", "karunga", "jaunga", "milte"):
+        assert word in e, word
+    assert f(e, "kya") >= 160 and f(e, "yaar") >= 160
+    assert f(e, "kya") < f(e, "what")
+    assert "raha" in e["kar"].bigrams and "liye" in e["mere"].bigrams
+    assert "nahi" in e["koi"].bigrams or "baat" in e["koi"].bigrams

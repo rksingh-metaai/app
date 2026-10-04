@@ -1,15 +1,19 @@
 # Romanised Hindi/Urdu words used in code-mixed (Hinglish) typing,
-# including common spelling variants. Frequencies are kept below everyday
-# English so they never displace English suggestions.
+# including common spelling variants. The commonest rank around the top
+# 1,000 words, still below core English ("the", "what", "hi").
+# More forms and the Hinglish predictions come from tools/make_hinglish.py.
 
-@@ 130
+@@ 165
 # very common function words
 kya hai hain nahi nahin nhi haan han accha achha acha theek thik kaise kaisa
 kaisi kahan kahaan kab kyun kyu kyon kaun mera meri mere tera teri tere tum
 tumhara tumhari aap aapka aapki aapke hum humara hamara mai mujhe tujhe
 usko isko unko yeh ye woh wo bhi toh aur lekin phir fir abhi aaj kal
 bahut bohot bohat thoda zyada jyada kuch sab koi kaam ghar ho
-@@ 115
+# common chat words
+yaar=170 bhai=165 chalo=160 raha=160 rahe=160 rahi=155 karo=155 milte=150
+batao=150 bata=150 pata=160 matlab=150 sahi=150 haanji=145 ji=160
+@@ 140
 khana paani pani chalo chal chalega karo karna karenge kar raha rahi rahe
 gaya gayi gaye tha thi hoga hogi hua hui dekho dekh suno bolo bol batao
 bata yaar yar arre arey oye mat sach pyaar pyar dil dost dosti shadi paisa
@@ -19,7 +23,7 @@ aaja jao aao baat baatein log logon ladka ladki bachcha bacche mummy papa
 maa khush dukh mazaa maza masti pagal bakwas jhooth sachme chup zindagi
 duniya waqt samay din raat subah shaam kitna kitne kitni itna jab tab agar
 warna milte milenge milna pakka nashta jaldi dheere kaha lo le de ja aa
-@@ 100
+@@ 120
 jhakaas parso hum log apna apni apne sabko sabse unka unki uska uski
 iska iski chahiye chahta chahti sakta sakti sakte lagta lagti laga lagi
 kaha kehna bolna sunna dekhna jana aana khaana peena sona uthna baitho
@@ -27,7 +31,7 @@ ruko ruk jaldi wapas bas ekbaar dobara pehle baad mein ke ki ka se par
 tak liye saath bina sirf shayad zaroor jarur haanji nahiji acchi acche
 bura buri bure naya nayi naye purana purani sasta mehnga
 
-@@ 95
+@@ 115
 # verbs (with common spelling variants)
 aana aaya aayi aaye aate aata aati aaoge aaunga aaungi aayega aayegi
 jaana jaata jaati jaate jaunga jaungi jayega jayegi jaoge chalte chalti
