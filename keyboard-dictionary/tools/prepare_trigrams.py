@@ -8,8 +8,9 @@ Inputs:
   data/contractions.txt, data/offensive.txt
 
 Output:
-  data/generated/trigrams.tsv.gz  "w1<TAB>w2<TAB>w3<TAB>f"  (f: 0-255, same
-  scale as the bigram predictions: 255 + 32*log10(P(w3 | w1 w2)))
+  data/generated/trigrams.tsv.gz  "w1<TAB>w2<TAB>w3<TAB>count<TAB>f"
+  count: occurrences 1990-2019 (ranks phrases globally); f: 0-255, same scale
+  as the bigram predictions: 255 + 32*log10(P(w3 | w1 w2))
 
 Contractions are split in the source. A 3-gram starting with a clitic
 ("'m going to") is credited to the contractions ending in it (I'm going ->
@@ -117,19 +118,22 @@ def main() -> None:
             if c1:
                 counts[(c1, c2)][c3] += n
 
-    # "don't know" -> what: borrow from "not know" unless direct data exists.
+    # "don't know" -> what: borrow from "not know" unless direct data exists,
+    # scaled by how much of "not" each contraction accounts for.
+    not_freq = next(float(r[1]) for r in read_generated("unigrams.tsv") if r[0] == "not")
     for (w1, w2), followers in list(counts.items()):
         if w1 != "not":
             continue
         for neg in negations:
             if (neg, w2) not in counts:
-                counts[(neg, w2)] = followers
+                scale = min(1.0, freq[neg] / not_freq)
+                counts[(neg, w2)] = {w: n * scale for w, n in followers.items()}
 
     kept = contexts = 0
     # gzip with mtime=0 so identical data gives an identical file.
     with gzip.GzipFile(GENERATED / "trigrams.tsv.gz", "wb", mtime=0) as raw, \
             io.TextIOWrapper(raw, encoding="utf-8", newline="\n") as out:
-        out.write("# w1\tw2\tw3\tf  (Google Books Ngram 2020, fiction 3-grams)\n")
+        out.write("# w1\tw2\tw3\tcount\tf  (Google Books Ngram 2020, fiction 3-grams)\n")
         for (w1, w2) in sorted(counts):
             followers = counts[(w1, w2)]
             total = sum(followers.values())
@@ -143,7 +147,7 @@ def main() -> None:
                     break
                 if w3.lower() in offensive:
                     continue
-                out.write(f"{w1}\t{w2}\t{w3}\t{trigram_f(p)}\n")
+                out.write(f"{w1}\t{w2}\t{w3}\t{round(n)}\t{trigram_f(p)}\n")
                 kept += 1
                 wrote = True
             contexts += wrote

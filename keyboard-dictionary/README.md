@@ -6,9 +6,9 @@ commercial use.
 
 | | |
 |---|---|
-| Words | 165,113 |
-| Next-word predictions (bigrams) | 432,933 |
-| 3-word predictions (trigrams) | 4,842,972 (`output/en_IN_trigrams.tsv.gz`) |
+| Words | 150,000 |
+| Next-word predictions (bigrams) | 400,000 |
+| 3-word predictions (trigrams) | 500,000 |
 | Spelling | British/Indian forms rank first, and US forms are kept |
 | Licence | CC BY 3.0 attribution plus the SCOWL notice (see [Licences](#licences)) |
 
@@ -25,12 +25,12 @@ commercial use.
   - **Casing comes from usage.** `India` is almost always capitalised, so
     only `India` is kept. `bill` and `Bill` are both common, so both are kept.
 - **Next-word predictions.** These are word pairs counted from 25 GB of
-  English Fiction 2-grams. The 5k most common words get up to 12 predictions
-  each, with fewer for rarer words.
+  English Fiction 2-grams. The 400,000 most frequent pairs are kept, with up
+  to 12 predictions per word.
 - **3-word predictions (trigrams).** These predict the next word from the
   previous two (`I'm going → to`, `one of → the`, `thank you → for`). They
-  are counted from about 220 GB of English Fiction 3-grams, keeping the 5 best
-  next words for each two-word context. Standard AOSP/HeliBoard `.dict` files
+  are counted from about 220 GB of English Fiction 3-grams. The 500,000 most
+  frequent phrases are kept, with up to 5 next words per two-word context. Standard AOSP/HeliBoard `.dict` files
   only use bigrams, so trigrams ship as a separate TSV for keyboards with
   their own prediction engine.
 - **Contractions** (`don't`, `I'm`, `you're` and so on). The source text
@@ -82,7 +82,7 @@ output/
   en_IN.combined            AOSP source word list -> compile to .dict
   en_IN.tsv                 word / frequency / offensive (for custom engines)
   en_IN_bigrams.tsv         word / next / frequency       (for custom engines)
-  en_IN_trigrams.tsv.gz     word1 / word2 / next / frequency (gzip; custom engines only)
+  en_IN_trigrams.tsv        word1 / word2 / next / frequency (custom engines only)
 tools/
   fetch_ngrams.sh           regenerates data/generated/ (streams ~250 GB)
   ngramcount/               Go streamer that sums n-gram counts over years
@@ -128,10 +128,18 @@ How frequencies are merged:
 After any change, bump `VERSION` in `build.py` so installed keyboards pick up
 the update, then run the tests.
 
-**Size:** to ship a smaller dictionary, lower `MAX_WORDS` in
-`tools/prepare_unigrams.py`, or `K_BY_RANK` in `tools/prepare_bigrams.py` for
-fewer predictions, then rerun them. The rarest words carry low frequencies,
-so they are suggested only on a near-exact match.
+**Size and selection:** the output sizes are set in `build.py`
+(`UNIGRAM_LIMIT = 150_000`, `BIGRAM_LIMIT = 400_000`,
+`TRIGRAM_LIMIT = 500_000`). Change them and rerun `python3 build.py`.
+Entries are picked best-first:
+
+- **Words:** every curated word, then the most frequent ones.
+- **Pairs and 3-word phrases:** the hand-written ones, then those that occur
+  most often in the corpus. At most 12 predictions per word and 5 per
+  two-word context.
+
+**All frequencies are whole numbers.** The generated data stores occurrences
+per billion words or raw counts, and the outputs use the 0–255 AOSP scale.
 
 **Frequency scale:** f = 33 × log10(occurrences per billion words) − 5.7.
 For example, `the` is about 250, `India` about 151, and a word seen 6 times
@@ -153,7 +161,7 @@ Then use the file in one of these ways:
   (India) → Dictionary → Add dictionary.
 - **Your own LatinIME fork**: put it at `app/src/main/res/raw/main_en_in.dict`.
 - **A custom engine**: load `output/en_IN.tsv`, `output/en_IN_bigrams.tsv`
-  and `output/en_IN_trigrams.tsv.gz` (gunzip first) into a trie or SQLite. To predict, look up
+  and `output/en_IN_trigrams.tsv` into a trie or SQLite. To predict, look up
   the last two words in the trigrams first, fall back to the last word in the
   bigrams, then fall back to word frequency. Skip rows where `offensive` is 1 unless the user has
   opted in.

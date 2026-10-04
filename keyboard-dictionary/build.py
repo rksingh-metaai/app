@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import gzip
-import io
 import math
 import re
 from dataclasses import dataclass, field
@@ -39,7 +38,7 @@ OUTPUT = ROOT / "output"
 DICT_ID = "main:en_in"
 LOCALE = "en_IN"
 DESCRIPTION = "English (India)"
-VERSION = 2
+VERSION = 3
 DATE = 1791072000  # 2026-10-04 00:00 UTC
 
 # Per-billion frequencies are mapped to the AOSP 0..255 unigram scale with
@@ -59,6 +58,15 @@ US_VARIANT_PENALTY = 25
 # this much below it ("West" < "west", "PIN" < "pin").
 CASED_VARIANT_GAP = 10
 
+# Output sizes. Entries are chosen best-first:
+#  * words: every curated word, then the most frequent ones;
+#  * pairs / 3-word phrases: hand-written ones, then those occurring most
+#    often in the corpus (a common sequence like "thank you" beats a rare one
+#    that merely has a high conditional probability).
+UNIGRAM_LIMIT = 150_000
+BIGRAM_LIMIT = 400_000
+TRIGRAM_LIMIT = 500_000
+
 CURATED_WORD_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9'.\-]*$")
 
 
@@ -68,6 +76,7 @@ class Entry:
     f: int
     offensive: bool = False
     curated: bool = False  # came from a hand-curated list, never auto-removed
+    per_billion: float = 0.0  # corpus frequency; breaks ties between equal f
     bigrams: dict[str, int] = field(default_factory=dict)
 
 
@@ -129,14 +138,6 @@ def read_generated(name: str) -> list[list[str]]:
     ]
 
 
-def write_text_gz(path: Path, text: str) -> None:
-    """Reproducible gzip (mtime=0): same content, same bytes."""
-    with gzip.GzipFile(path, "wb", mtime=0) as raw, io.TextIOWrapper(
-        raw, encoding="utf-8", newline="\n"
-    ) as out:
-        out.write(text)
-
-
 # ---------------------------------------------------------------- build
 
 
@@ -148,7 +149,8 @@ class Dictionary:
     def get(self, word: str) -> Entry | None:
         return self.entries.get(word)
 
-    def put(self, word: str, f: int, curated: bool = False) -> Entry:
+    def put(self, word: str, f: int, curated: bool = False,
+            per_billion: float = 0.0) -> Entry:
         """Add `word`, keeping the higher frequency if it already exists."""
         entry = self.entries.get(word)
         if entry is None:
@@ -156,6 +158,7 @@ class Dictionary:
         else:
             entry.f = max(entry.f, f)
         entry.curated |= curated
+        entry.per_billion = max(entry.per_billion, per_billion)
         return entry
 
     def recase(self, word: str, f: int, keep_lowercase: set[str]) -> int:
@@ -180,7 +183,8 @@ class Dictionary:
             return self.put(word, f, curated=True).f
         del self.entries[lower]
         self.recased.append((lower, word))
-        return self.put(word, max(f, entry.f), curated=True).f
+        return self.put(word, max(f, entry.f), curated=True,
+                        per_billion=entry.per_billion).f
 
 
 def build() -> Dictionary:
@@ -191,9 +195,11 @@ def build() -> Dictionary:
     d = Dictionary()
     for word, per_billion in read_generated("unigrams.tsv"):
         if word not in exclude:
-            d.put(word, per_billion_to_f(float(per_billion)))
+            pb = float(per_billion)
+            d.put(word, per_billion_to_f(pb), per_billion=pb)
     for word, per_billion in read_generated("contractions.tsv"):
-        d.put(word, per_billion_to_f(float(per_billion)), curated=True)
+        pb = float(per_billion)
+        d.put(word, per_billion_to_f(pb), curated=True, per_billion=pb)
 
     # Indian English follows British spelling: "colour" outranks "color".
     for us, gb in read_lines(DATA / "spelling_gb.tsv"):
@@ -222,26 +228,59 @@ def build() -> Dictionary:
             entry.offensive = True
             entry.f = F_OFFENSIVE
 
-    for first, second, f in read_generated("bigrams.tsv"):
-        a, b = d.get(first), d.get(second)
-        if a and b and not a.offensive and not b.offensive:
-            a.bigrams[second] = int(f)
+    select_words(d, UNIGRAM_LIMIT)
+    select_bigrams(d, BIGRAM_LIMIT)
+    return d
+
+
+def select_words(d: Dictionary, limit: int) -> None:
+    """Keep `limit` words: curated and flagged-offensive ones first (the latter
+    so they are never "corrected" into something else), then by frequency."""
+    def rank(e: Entry):
+        return (-e.f, -e.per_billion, e.word.lower(), e.word)
+
+    must = sorted((e for e in d.entries.values() if e.curated or e.offensive), key=rank)
+    rest = sorted((e for e in d.entries.values() if not (e.curated or e.offensive)), key=rank)
+    if len(must) > limit:
+        raise ValueError(f"{len(must)} curated words exceed the {limit} word limit")
+    keep = must + rest[: limit - len(must)]
+    d.entries = {e.word: e for e in keep}
+
+
+def usable(d: Dictionary, *words: str) -> bool:
+    return all((e := d.get(w)) is not None and not e.offensive for w in words)
+
+
+def select_bigrams(d: Dictionary, limit: int) -> None:
+    """Hand-written pairs first, then the pairs that occur most often."""
+    chosen: dict[tuple[str, str], int] = {}
     for row in read_lines(DATA / "bigrams.txt"):
         first, second, f = row[0], row[1], int(row[2])
-        for w in (first, second):
-            if w not in d.entries:
-                raise ValueError(f"bigrams.txt: {w!r} is not in the dictionary")
-        bigrams = d.entries[first].bigrams
-        bigrams[second] = max(bigrams.get(second, 0), f)
+        if not usable(d, first, second):
+            raise ValueError(f"bigrams.txt: {first} {second}: word not in the dictionary")
+        chosen[(first, second)] = max(chosen.get((first, second), 0), f)
 
-    return d
+    candidates = [
+        (int(count), first, second, int(f))
+        for first, second, count, f in read_generated("bigrams.tsv")
+        if usable(d, first, second)
+    ]
+    candidates.sort(key=lambda c: (-c[0], c[1], c[2]))
+    for _, first, second, f in candidates:
+        if len(chosen) >= limit:
+            break
+        chosen.setdefault((first, second), f)
+
+    for (first, second), f in chosen.items():
+        d.entries[first].bigrams[second] = f
 
 
 # ---------------------------------------------------------------- output
 
 
 def sorted_entries(d: Dictionary) -> list[Entry]:
-    return sorted(d.entries.values(), key=lambda e: (-e.f, e.word.lower(), e.word))
+    return sorted(d.entries.values(),
+                  key=lambda e: (-e.f, -e.per_billion, e.word.lower(), e.word))
 
 
 def write_combined(d: Dictionary, path: Path) -> None:
@@ -265,7 +304,7 @@ def write_tsv(d: Dictionary, path: Path) -> None:
     path.write_text("\n".join(rows) + "\n", encoding="utf-8")
 
 
-def write_trigrams_tsv(d: Dictionary, path: Path) -> int:
+def write_trigrams_tsv(d: Dictionary, path: Path, limit: int = TRIGRAM_LIMIT) -> int:
     """3-word predictions for custom engines (AOSP .dict files hold only
     bigrams). Rows whose words are not in the dictionary or are flagged
     offensive are dropped."""
@@ -273,17 +312,25 @@ def write_trigrams_tsv(d: Dictionary, path: Path) -> int:
         entry = d.get(word)
         return entry is not None and not entry.offensive
 
+    # Hand-written phrases first, then the most frequent ones.
     trigrams: dict[tuple[str, str, str], int] = {}
-    if (GENERATED / "trigrams.tsv.gz").exists():
-        for w1, w2, w3, f in read_generated("trigrams.tsv.gz"):
-            if ok(w1) and ok(w2) and ok(w3):
-                trigrams[(w1, w2, w3)] = int(f)
     for row in read_lines(DATA / "trigrams.txt"):
         key, f = (row[0], row[1], row[2]), int(row[3])
         for w in key:
             if not ok(w):
                 raise ValueError(f"trigrams.txt: {w!r} is not in the dictionary")
         trigrams[key] = max(trigrams.get(key, 0), f)
+
+    candidates = [
+        (int(count), w1, w2, w3, int(f))
+        for w1, w2, w3, count, f in read_generated("trigrams.tsv.gz")
+        if ok(w1) and ok(w2) and ok(w3)
+    ]
+    candidates.sort(key=lambda c: (-c[0], c[1], c[2], c[3]))
+    for _, w1, w2, w3, f in candidates:
+        if len(trigrams) >= limit:
+            break
+        trigrams.setdefault((w1, w2, w3), f)
 
     rows = ["word1\tword2\tnext\tfrequency"]
     rows += [
@@ -292,7 +339,7 @@ def write_trigrams_tsv(d: Dictionary, path: Path) -> int:
             trigrams.items(), key=lambda kv: (kv[0][0], kv[0][1], -kv[1], kv[0][2])
         )
     ]
-    write_text_gz(path, "\n".join(rows) + "\n")
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
     return len(trigrams)
 
 
@@ -319,7 +366,7 @@ def main() -> None:
     write_combined(d, args.out / "en_IN.combined")
     write_tsv(d, args.out / "en_IN.tsv")
     write_bigrams_tsv(d, args.out / "en_IN_bigrams.tsv")
-    trigrams = write_trigrams_tsv(d, args.out / "en_IN_trigrams.tsv.gz")
+    trigrams = write_trigrams_tsv(d, args.out / "en_IN_trigrams.tsv")
     if args.report_recased:
         for lower, word in sorted(d.recased):
             print(f"{lower} -> {word}  (f={d.entries[word].f})")

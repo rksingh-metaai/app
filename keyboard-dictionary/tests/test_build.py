@@ -1,4 +1,3 @@
-import gzip
 import re
 import sys
 from pathlib import Path
@@ -33,8 +32,19 @@ def f(entries, word):
     return entries[word].f
 
 
-def test_size(e):
-    assert len(e) > 150_000
+def test_exact_sizes(d, e):
+    assert len(e) == build.UNIGRAM_LIMIT == 150_000
+    assert sum(len(x.bigrams) for x in e.values()) == build.BIGRAM_LIMIT == 400_000
+
+
+def test_whole_number_frequencies():
+    for name, cols in (("unigrams.tsv", [1]), ("contractions.tsv", [1]),
+                       ("bigrams.tsv", [2, 3]), ("trigrams.tsv.gz", [3, 4])):
+        for i, row in enumerate(build.read_generated(name)):
+            for c in cols:
+                assert row[c].isdigit(), (name, row)
+            if i > 50_000:
+                break
 
 
 def test_no_corpus_noise(e):
@@ -101,7 +111,6 @@ def test_predictions(e):
     assert "Diwali" in e["happy"].bigrams
     assert "go" in e["let's"].bigrams
     assert "know" not in e["can't"].bigrams or "help" in e["can't"].bigrams
-    assert sum(len(x.bigrams) for x in e.values()) > 100_000
 
 
 def test_combined_output_is_valid(d, tmp_path):
@@ -139,12 +148,13 @@ def check_combined(text):
 
 
 def test_trigrams(d, tmp_path):
-    out = tmp_path / "tri.tsv.gz"
+    out = tmp_path / "tri.tsv"
     n = build.write_trigrams_tsv(d, out)
-    assert n > 1_000_000
+    assert n == build.TRIGRAM_LIMIT == 500_000
     rows = {}
-    text = gzip.decompress(out.read_bytes()).decode("utf-8")
-    for line in text.splitlines()[1:]:
+    lines = out.read_text(encoding="utf-8").splitlines()[1:]
+    assert len(lines) == n
+    for line in lines:
         w1, w2, w3, f = line.split("\t")
         assert 0 <= int(f) <= 255
         for w in (w1, w2, w3):
@@ -152,5 +162,5 @@ def test_trigrams(d, tmp_path):
         rows.setdefault((w1, w2), []).append(w3)
     assert "to" in rows[("I'm", "going")]
     assert "the" in rows[("one", "of")]
-    assert "know" in rows[("I", "don't")]
+    assert "be" in rows[("want", "to")]
     assert "ho" in rows[("kar", "rahe")]

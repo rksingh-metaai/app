@@ -8,8 +8,11 @@ Inputs:
   data/generated/unigrams.tsv, data/contractions.txt, data/offensive.txt
 
 Outputs:
-  data/generated/bigrams.tsv       "w1<TAB>w2<TAB>f"  (f: 0-255, AOSP scale)
-  data/generated/contractions.tsv  "word<TAB>per_billion"
+  data/generated/bigrams.tsv       "w1<TAB>w2<TAB>count<TAB>f"
+                                   count: pair occurrences 1990-2019 (used to
+                                   rank pairs globally); f: 0-255 AOSP scale of
+                                   P(w2 | w1) (used to rank predictions)
+  data/generated/contractions.tsv  "word<TAB>per_billion" (whole number)
 
 Contractions are mostly split in the source ("I 'm", "do not"), so their
 frequencies are rebuilt from those pairs. Their predictions come from the
@@ -34,8 +37,8 @@ EXPANSION = {"'s": "is", "'m": "am", "'re": "are", "'ll": "will", "'ve": "have",
              "'d": "would", "not": "not"}
 # Contractions with fewer direct predictions than this borrow them.
 MIN_DIRECT = 15
-# Number of predictions kept per word, by the word's frequency rank.
-K_BY_RANK = [(5_000, 12), (20_000, 8), (60_000, 5), (100_000, 3)]
+# Predictions kept per word here; build.py picks the global best from these.
+K_PER_WORD = 12
 # Followers of "not" come from every "X not" pair; after do/modal
 # contractions ("don't", "can't") a bare verb follows, never these.
 NOT_AFTER_MODAL = {
@@ -125,7 +128,7 @@ def main() -> None:
     with (GENERATED / "contractions.tsv").open("w", encoding="utf-8") as out:
         out.write("# word\tper_billion  (Google Books Ngram 2020, fiction 2-grams)\n")
         for word, n in sorted(contraction_count.items(), key=lambda kv: -kv[1]):
-            out.write(f"{word}\t{n * 1e9 / corpus_size:.2f}\n")
+            out.write(f"{word}\t{round(n * 1e9 / corpus_size)}\n")
 
     followers: dict[str, dict[str, int]] = defaultdict(dict)
     for (w1, w2), n in pair.items():
@@ -140,11 +143,17 @@ def main() -> None:
         direct = [n for n in followers.get(word, {}).values() if n >= COUNT_MIN]
         if len(direct) >= MIN_DIRECT:
             continue
+        if word not in contraction_count:
+            continue
         modal = second == "not" and first in MODAL_FIRSTS
-        for nxt, n in followers.get(EXPANSION[second], {}).items():
+        source = followers.get(EXPANSION[second], {})
+        # Scale the borrowed counts down to the contraction's own frequency
+        # so they compete fairly with real pairs in the global ranking.
+        scale = min(1.0, contraction_count[word] / max(1, sum(source.values())))
+        for nxt, n in source.items():
             if modal and nxt in NOT_AFTER_MODAL:
                 continue
-            pair[(word, nxt)] = max(pair.get((word, nxt), 0), n)
+            pair[(word, nxt)] = max(pair.get((word, nxt), 0), round(n * scale))
         borrowed += 1
 
     first_total: dict[str, int] = defaultdict(int)
@@ -158,15 +167,13 @@ def main() -> None:
 
     kept = 0
     with (GENERATED / "bigrams.tsv").open("w", encoding="utf-8") as out:
-        out.write("# w1\tw2\tf  (Google Books Ngram 2020, fiction 2-grams)\n")
+        out.write("# w1\tw2\tcount\tf  (Google Books Ngram 2020, fiction 2-grams)\n")
         for w1 in sorted(candidates, key=lambda w: rank.get(w, -1)):
-            r = rank.get(w1, 0)  # contractions rank with the top words
-            k = next((k for limit, k in K_BY_RANK if r < limit), 0)
-            for n, w2 in sorted(candidates[w1], reverse=True)[:k]:
+            for n, w2 in sorted(candidates[w1], reverse=True)[:K_PER_WORD]:
                 p = n / first_total[w1]
                 if p < P_MIN:
                     break
-                out.write(f"{w1}\t{w2}\t{bigram_f(p)}\n")
+                out.write(f"{w1}\t{w2}\t{n}\t{bigram_f(p)}\n")
                 kept += 1
     print(f"{len(contraction_count)} contractions ({borrowed} with borrowed "
           f"predictions), {kept} bigrams")

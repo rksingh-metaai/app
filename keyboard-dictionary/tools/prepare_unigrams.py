@@ -5,7 +5,8 @@ Inputs (produced by tools/fetch_ngrams.sh):
   uni_fiction.tsv, uni_gb.tsv   "token<TAB>count" (case-sensitive, 1990-2019)
   SCOWL word lists              british-english-huge, american-english-huge
 
-Output: data/generated/unigrams.tsv  "word<TAB>per_billion" (sorted, descending)
+Output: data/generated/unigrams.tsv  "word<TAB>per_billion" (whole number,
+        occurrences per billion words; sorted, descending)
 and     tools/.vocab_forms.txt  every surface form (all casings) that maps to
         a selected word; used to filter the bigram pass (not committed).
 
@@ -151,7 +152,7 @@ def main() -> None:
     with (GENERATED / "unigrams.tsv").open("w", encoding="utf-8") as out:
         out.write("# word\tper_billion  (Google Books Ngram 2020, fiction+GB, 1990-2019)\n")
         for word, f in ranked:
-            out.write(f"{word}\t{f:.2f}\n")
+            out.write(f"{word}\t{round(f)}\n")
 
     selected = {w.lower() for w, _ in ranked}
     forms = sorted(t for t in mixed if t.lower() in selected)
