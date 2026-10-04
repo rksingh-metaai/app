@@ -87,10 +87,10 @@ data/
   exclude.txt               words to drop from the generated vocabulary
   bigrams.txt               hand-written word pairs
 output/
-  en_IN.combined            AOSP source word list -> compile to .dict
-  en_IN.tsv                 word / frequency / offensive (for custom engines)
-  en_IN_bigrams.tsv         word / next / frequency       (for custom engines)
-  en_IN_trigrams.tsv        word1 / word2 / next / frequency (custom engines only)
+  en_IN_words.tsv           keyboard database: word / frequency (1-150)
+  en_IN_bigrams.tsv         keyboard database: word1 / word2 / per-billion frequency
+  en_IN_trigrams.tsv        keyboard database: word1 / word2 / word3 / per-billion frequency
+  en_IN.combined            AOSP source word list -> compile to .dict (0-255 scale)
 tools/
   fetch_ngrams.sh           regenerates data/generated/ (streams ~250 GB)
   ngramcount/               Go streamer that sums n-gram counts over years
@@ -146,12 +146,32 @@ Entries are picked best-first:
   most often in the corpus. At most 12 predictions per word and 5 per
   two-word context.
 
-**All frequencies are whole numbers.** The generated data stores occurrences
-per billion words or raw counts, and the outputs use the 0–255 AOSP scale.
+**All frequencies are whole numbers.**
 
 **Frequency scale:** f = 33 × log10(occurrences per billion words) − 5.7.
 For example, `the` is about 250, `India` about 151, and a word seen 6 times
 per billion is about 20.
+
+## Keyboard database format
+
+The three `output/en_IN_*.tsv` files are written by `export_keyboard.py` in
+the format the keyboard importer expects:
+
+- **Line 1** is a `#` comment; every other line is a tab-separated row.
+- **Everything is lowercase.** Case variants are merged by adding their
+  frequencies (`I` + `i` → `i`).
+- **Words** use the keyboard's 1–150 scale:
+  `150 + 30 × log10(occurrences per billion ÷ occurrences of "the")`,
+  clamped to 1–150. So `the` = 150, everyday words are about 60–100, and
+  +30 means ten times as common. Offensive words are kept at 1, so they are
+  never "corrected" into something else but rank last.
+- **Bigrams and trigrams** give the estimated occurrences per billion words
+  of the whole pair or phrase. For example, `of the` is about 4,000,000.
+- **Contractions:** pairs involving them are rebuilt from the 3-word data,
+  because the source splits contractions apart. "I do not" becomes `i don't`
+  plus the remaining `i do`, and "I 'm going" becomes `i'm going`.
+- **Hand-curated entries:** their frequencies are converted from the
+  internal 0–255 floors with the same formulas.
 
 ## Compiling to a binary `.dict`
 
@@ -168,11 +188,9 @@ Then use the file in one of these ways:
 - **HeliBoard / OpenBoard**: go to Settings → Languages & Layouts → English
   (India) → Dictionary → Add dictionary.
 - **Your own LatinIME fork**: put it at `app/src/main/res/raw/main_en_in.dict`.
-- **A custom engine**: load `output/en_IN.tsv`, `output/en_IN_bigrams.tsv`
-  and `output/en_IN_trigrams.tsv` into a trie or SQLite. To predict, look up
-  the last two words in the trigrams first, fall back to the last word in the
-  bigrams, then fall back to word frequency. Skip rows where `offensive` is 1 unless the user has
-  opted in.
+- **The keyboard database**: import `output/en_IN_words.tsv`,
+  `output/en_IN_bigrams.tsv` and `output/en_IN_trigrams.tsv` (see
+  [Keyboard database format](#keyboard-database-format)).
 
 ## Licences
 

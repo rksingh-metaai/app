@@ -99,24 +99,62 @@ def main() -> None:
         for clitic, items in by_clitic.items()
     }
 
+    # Split contractions: ("do", "not") -> ("don't", 0.7), ("I", "'m") -> ("I'm", 1).
+    contraction: dict[tuple[str, str], tuple[str, float]] = {}
+    for row in read_rows(DATA / "contractions.txt"):
+        if row[0] in freq:
+            contraction[(row[1], row[2])] = (row[0], float(row[3]) if len(row) > 3 else 1.0)
+
+    def split(a: str, b: str) -> tuple[str, float] | None:
+        return contraction.get((a if a == "I" else a.lower(), b))
+
     counts: dict[tuple[str, str], dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    # Pairs involving a contraction, rebuilt from 3-grams: "and I 'm" ->
+    # (and, I'm); "do not know" -> (don't, know). Negative counts remove the
+    # share that moved out of the split pair ("I do" loses "I do n't").
+    pairs: dict[tuple[str, str], float] = defaultdict(float)
     with args.trigrams.open(encoding="utf-8") as fh:
         for line in fh:
             ngram, _, count = line.rstrip("\n").rpartition("\t")
             t1, t2, t3 = ngram.split(" ")
+            n = int(count)
+            tail = split(t2, t3)   # "<t1> do not", "<t1> I 'm"
+            head = split(t1, t2)   # "do not <t3>", "I 'm <t3>"
+            if tail and not t1.startswith("'"):
+                c1, c2 = canon(t1), canon(t2)
+                if c1 and c2:
+                    word, share = tail
+                    pairs[(c1, word)] += n * share
+                    pairs[(c1, c2)] -= n * share
+            if head and not t3.startswith("'"):
+                c3 = canon(t3)
+                if c3:
+                    word, share = head
+                    pairs[(word, c3)] += n * share
             if t2.startswith("'") or t3.startswith("'"):
                 continue
             c2, c3 = canon(t2), canon(t3)
             if not (c2 and c3):
                 continue
-            n = int(count)
+            # The contracted share of "do not X" / "I do not" is not a 3-word
+            # phrase once typed as "don't X" / "I don't".
+            keep = 1.0 - max(tail[1] if tail else 0.0, head[1] if head else 0.0)
+            if keep <= 0:
+                continue
             if t1.startswith("'"):
                 for word, share in clitic_share.get(t1, ()):
                     counts[(word, c2)][c3] += n * share
                 continue
             c1 = canon(t1)
             if c1:
-                counts[(c1, c2)][c3] += n
+                counts[(c1, c2)][c3] += n * keep
+
+    with (GENERATED / "contraction_bigrams.tsv").open("w", encoding="utf-8") as out:
+        out.write("# w1\tw2\tcount  pairs rebuilt around split contractions "
+                  "(negative: share moved out of the split pair)\n")
+        for (a, b), n in sorted(pairs.items()):
+            if abs(n) >= COUNT_MIN:
+                out.write(f"{a}\t{b}\t{round(n)}\n")
 
     # "don't know" -> what: borrow from "not know" unless direct data exists,
     # scaled by how much of "not" each contraction accounts for.

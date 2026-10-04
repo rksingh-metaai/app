@@ -156,6 +156,73 @@ CHAT_TRIGRAMS = [
     ("revert", "back", "to", 180),
 ]
 
+# Places / things typed with postpositions and motion verbs.
+PLACES = ["ghar", "office", "school", "college", "market", "bazaar", "station",
+          "hospital", "mandir", "dukaan", "bank", "gaon", "shehar", "kamre",
+          "gaadi", "bus", "train", "metro"]
+POSTPOSITION_AFTER_PLACE = [("pe", 205), ("se", 200), ("mein", 200), ("ja", 195),
+                            ("aa", 190), ("tak", 180), ("ke", 175)]
+ADJECTIVES = ["accha", "badhiya", "sahi", "galat", "bura", "mast", "zabardast",
+              "mushkil", "aasan", "sasta", "mehnga", "bada", "chhota", "naya",
+              "purana", "khatarnak", "pyaara", "sundar", "zaroori", "theek"]
+INTENSIFIERS = [("bahut", 210), ("bohot", 200), ("kaafi", 190), ("thoda", 185),
+                ("ekdum", 185), ("itna", 180), ("bilkul", 180)]
+TIME_WORDS = ["aaj", "kal", "parso", "abhi", "subah", "shaam", "raat", "dopahar"]
+# Extra everyday pairs.
+MORE_BIGRAMS = {
+    "kitne": [("ka", 205), ("ki", 200), ("paise", 195)],
+    "paise": [("de", 200), ("bhej", 195), ("nahi", 195), ("hai", 190)],
+    "mummy": [("papa", 205), ("ne", 200), ("ko", 195)],
+    "papa": [("ne", 200), ("ko", 195), ("ka", 190)],
+    "khush": [("raho", 205), ("hai", 200), ("hoon", 195)],
+    "dhyan": [("rakhna", 215), ("se", 205), ("do", 195)],
+    "apna": [("dhyan", 215), ("kaam", 200), ("ghar", 195)],
+    "shukriya": [("bhai", 200), ("ji", 195), ("dost", 190)],
+    "dhanyavaad": [("ji", 200), ("aapka", 195)],
+    "jaldi": [("aao", 210), ("se", 205), ("karo", 205), ("batao", 200)],
+    "der": [("ho", 210), ("se", 200), ("lagegi", 195)],
+    "baat": [("karte", 215), ("karo", 210), ("hui", 205), ("nahi", 200), ("hai", 200)],
+    "call": [("karo", 215), ("kar", 210), ("karna", 205), ("kiya", 200)],
+    "message": [("karo", 210), ("kar", 205), ("bhej", 200), ("kiya", 195)],
+    "photo": [("bhejo", 210), ("bhej", 205), ("dekhi", 195)],
+    "time": [("pe", 205), ("nahi", 205), ("hai", 200), ("kya", 195)],
+    "khatam": [("ho", 215), ("karo", 205), ("kar", 200)],
+    "shuru": [("ho", 210), ("karo", 205), ("kar", 200)],
+    "intezaar": [("karo", 210), ("kar", 205)],
+    "yaad": [("hai", 210), ("aa", 205), ("rakhna", 200), ("aaya", 195)],
+    "pasand": [("hai", 215), ("aaya", 210), ("nahi", 200)],
+    "maza": [("aaya", 220), ("aa", 205)],
+    "bhook": [("lagi", 215), ("lag", 205)],
+    "neend": [("aa", 210), ("nahi", 200)],
+    "tabiyat": [("theek", 215), ("kaisi", 210), ("kharab", 205)],
+    "kharab": [("hai", 205), ("ho", 200)],
+}
+MORE_TRIGRAMS = [
+    ("apna", "dhyan", "rakhna", 230), ("dhyan", "se", "jana", 205),
+    ("khush", "raho", "hamesha", 190), ("baat", "karte", "hain", 215),
+    ("call", "karna", "mujhe", 200), ("mujhe", "call", "karna", 205),
+    ("photo", "bhej", "do", 205), ("jaldi", "se", "aao", 200),
+    ("maza", "aa", "gaya", 220), ("bhook", "lagi", "hai", 210),
+    ("neend", "aa", "rahi", 205), ("aa", "rahi", "hai", 215),
+    ("tabiyat", "kaisi", "hai", 210), ("tabiyat", "theek", "hai", 210),
+    ("pasand", "aaya", "kya", 195), ("yaad", "aa", "rahi", 200),
+    ("der", "ho", "gayi", 210), ("ho", "gayi", "hai", 205),
+    ("khatam", "ho", "gaya", 210), ("ho", "gaya", "hai", 215),
+    ("kitne", "ka", "hai", 205), ("paise", "bhej", "do", 205),
+    ("time", "pe", "aana", 195), ("time", "nahi", "hai", 200),
+]
+# Common alternative spellings: every phrase containing the key is also
+# emitted with each variant (slightly lower frequency).
+VARIANTS = {
+    "nahi": ["nhi", "nahin", "nai"], "accha": ["acha", "achha"], "kyun": ["kyu", "kyon"],
+    "hain": ["hai"], "theek": ["thik"], "bahut": ["bohot", "bahot"],
+    "kya": ["kia"], "main": ["mai"], "mujhe": ["muje"], "kuch": ["kuchh"],
+    "phir": ["fir"], "yaar": ["yar"], "zyada": ["jyada"], "kaise": ["kese"],
+    "raha": ["rha"], "rahi": ["rhi"], "rahe": ["rhe"], "haan": ["han"],
+    "abhi": ["abi"], "toh": ["to"], "kar": ["kr"], "karo": ["kro"], "karna": ["krna"], "woh": ["wo"], "yeh": ["ye"],
+}
+VARIANT_PENALTY = 15
+
 
 def main() -> None:
     bigrams: dict[tuple[str, str], int] = {}
@@ -225,11 +292,53 @@ def main() -> None:
         tri(obl, "liye", "kuch", 185)
         tri(obl, "saath", "chal", 180)
 
+    for place in PLACES:
+        vocab.add(place)
+        for post, f in POSTPOSITION_AFTER_PLACE:
+            bi(place, post, f)
+        tri(place, "ja", "raha", 195)
+        tri(place, "pe", "hoon", 195)
+        tri(place, "se", "aa", 190)
+        tri(place, "pahunch", "gaya", 190)
+    for adj in ADJECTIVES:
+        vocab.add(adj)
+        bi(adj, "hai", 210)
+        bi(adj, "laga", 195)
+        for inten, f in INTENSIFIERS:
+            bi(inten, adj, f - 5)
+            tri(inten, adj, "hai", f)
+    for t in TIME_WORDS:
+        vocab.add(t)
+        for nxt, f in (("tak", 195), ("se", 195), ("kya", 190), ("milte", 190), ("aana", 185)):
+            bi(t, nxt, f)
+    for first, nexts in MORE_BIGRAMS.items():
+        for nxt, f in nexts:
+            bi(first, nxt, f)
+    for a, b, c, f in MORE_TRIGRAMS:
+        tri(a, b, c, f)
+
     for first, nexts in CHAT_BIGRAMS.items():
         for nxt, f in nexts:
             bi(first, nxt, f)
     for a, b, c, f in CHAT_TRIGRAMS:
         tri(a, b, c, f)
+
+    # Spelling variants of every Hinglish phrase.
+    def variants(words: tuple[str, ...]) -> list[tuple[str, ...]]:
+        out = [words]
+        for i, w in enumerate(words):
+            for alt in VARIANTS.get(w, ()):
+                out += [v[:i] + (alt,) + v[i + 1:] for v in list(out) if v[i] == w]
+        return out[1:]
+
+    for (a, b), f in list(bigrams.items()):
+        for va, vb in variants((a, b)):
+            if (va, vb) not in bigrams:
+                bigrams[(va, vb)] = f - VARIANT_PENALTY
+    for (a, b, c), f in list(trigrams.items()):
+        for v in variants((a, b, c)):
+            if v not in trigrams:
+                trigrams[v] = f - VARIANT_PENALTY
 
     english = {"good", "morning", "night", "happy", "birthday", "wish", "you", "a",
                "very", "to", "do", "the", "needful", "kindly", "please", "revert",

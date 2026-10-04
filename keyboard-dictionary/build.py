@@ -187,7 +187,10 @@ class Dictionary:
                         per_billion=entry.per_billion).f
 
 
-def build() -> Dictionary:
+def build(select: bool = True) -> Dictionary:
+    """The full dictionary. With `select`, trimmed to UNIGRAM_LIMIT words and
+    BIGRAM_LIMIT predictions for the AOSP word list; the keyboard export
+    (export_keyboard.py) does its own selection on the full dictionary."""
     exclude = read_wordset("exclude.txt")
     keep_lowercase = read_wordset("keep_lowercase.txt")
     offensive = {w.lower() for w in read_wordset("offensive.txt")}
@@ -229,8 +232,9 @@ def build() -> Dictionary:
             entry.offensive = True
             entry.f = F_OFFENSIVE
 
-    select_words(d, UNIGRAM_LIMIT)
-    select_bigrams(d, BIGRAM_LIMIT)
+    if select:
+        select_words(d, UNIGRAM_LIMIT)
+        select_bigrams(d, BIGRAM_LIMIT)
     return d
 
 
@@ -300,59 +304,6 @@ def write_combined(d: Dictionary, path: Path) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def write_tsv(d: Dictionary, path: Path) -> None:
-    rows = ["word\tfrequency\toffensive"]
-    rows += [f"{e.word}\t{e.f}\t{int(e.offensive)}" for e in sorted_entries(d)]
-    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
-
-
-def write_trigrams_tsv(d: Dictionary, path: Path, limit: int = TRIGRAM_LIMIT) -> int:
-    """3-word predictions for custom engines (AOSP .dict files hold only
-    bigrams). Rows whose words are not in the dictionary or are flagged
-    offensive are dropped."""
-    def ok(word: str) -> bool:
-        entry = d.get(word)
-        return entry is not None and not entry.offensive
-
-    # Hand-written phrases first, then the most frequent ones.
-    trigrams: dict[tuple[str, str, str], int] = {}
-    for row in read_lines(DATA / "trigrams.txt") + read_lines(DATA / "hinglish_trigrams.txt"):
-        key, f = (row[0], row[1], row[2]), int(row[3])
-        for w in key:
-            if not ok(w):
-                raise ValueError(f"trigrams.txt: {w!r} is not in the dictionary")
-        trigrams[key] = max(trigrams.get(key, 0), f)
-
-    candidates = [
-        (int(count), w1, w2, w3, int(f))
-        for w1, w2, w3, count, f in read_generated("trigrams.tsv.gz")
-        if ok(w1) and ok(w2) and ok(w3)
-    ]
-    candidates.sort(key=lambda c: (-c[0], c[1], c[2], c[3]))
-    for _, w1, w2, w3, f in candidates:
-        if len(trigrams) >= limit:
-            break
-        trigrams.setdefault((w1, w2, w3), f)
-
-    rows = ["word1\tword2\tnext\tfrequency"]
-    rows += [
-        f"{w1}\t{w2}\t{w3}\t{f}"
-        for (w1, w2, w3), f in sorted(
-            trigrams.items(), key=lambda kv: (kv[0][0], kv[0][1], -kv[1], kv[0][2])
-        )
-    ]
-    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
-    return len(trigrams)
-
-
-def write_bigrams_tsv(d: Dictionary, path: Path) -> None:
-    rows = ["word\tnext\tfrequency"]
-    for e in sorted_entries(d):
-        for target, bf in sorted(e.bigrams.items(), key=lambda kv: (-kv[1], kv[0])):
-            rows.append(f"{e.word}\t{target}\t{bf}")
-    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--out", type=Path, default=OUTPUT)
@@ -363,17 +314,17 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    import export_keyboard
+
+    counts = export_keyboard.export(build(select=False), args.out)
     d = build()
-    args.out.mkdir(parents=True, exist_ok=True)
     write_combined(d, args.out / "en_IN.combined")
-    write_tsv(d, args.out / "en_IN.tsv")
-    write_bigrams_tsv(d, args.out / "en_IN_bigrams.tsv")
-    trigrams = write_trigrams_tsv(d, args.out / "en_IN_trigrams.tsv")
     if args.report_recased:
         for lower, word in sorted(d.recased):
             print(f"{lower} -> {word}  (f={d.entries[word].f})")
-    bigrams = sum(len(e.bigrams) for e in d.entries.values())
-    print(f"{len(d.entries)} words, {bigrams} bigrams, {trigrams} trigrams -> {args.out}/")
+    print(f"keyboard export: {counts['words']} words, {counts['bigrams']} bigrams, "
+          f"{counts['trigrams']} trigrams; AOSP word list: {len(d.entries)} words "
+          f"-> {args.out}/")
 
 
 if __name__ == "__main__":

@@ -147,25 +147,6 @@ def check_combined(text):
     return words
 
 
-def test_trigrams(d, tmp_path):
-    out = tmp_path / "tri.tsv"
-    n = build.write_trigrams_tsv(d, out)
-    assert n == build.TRIGRAM_LIMIT == 500_000
-    rows = {}
-    lines = out.read_text(encoding="utf-8").splitlines()[1:]
-    assert len(lines) == n
-    for line in lines:
-        w1, w2, w3, f = line.split("\t")
-        assert 0 <= int(f) <= 255
-        for w in (w1, w2, w3):
-            assert w in d.entries and not d.entries[w].offensive, line
-        rows.setdefault((w1, w2), []).append(w3)
-    assert "to" in rows[("I'm", "going")]
-    assert "the" in rows[("one", "of")]
-    assert "be" in rows[("want", "to")]
-    assert "ho" in rows[("kar", "rahe")]
-
-
 def test_hinglish_coverage(e):
     for word in ("kya", "hai", "nahi", "theek", "yaar", "karunga", "jaunga", "milte"):
         assert word in e, word
@@ -173,3 +154,68 @@ def test_hinglish_coverage(e):
     assert f(e, "kya") < f(e, "what")
     assert "raha" in e["kar"].bigrams and "liye" in e["mere"].bigrams
     assert "nahi" in e["koi"].bigrams or "baat" in e["koi"].bigrams
+
+
+# ---------------------------------------------------------- keyboard export
+
+OUT = ROOT / "output"
+
+
+def load(name, n_keys):
+    lines = (OUT / name).read_text(encoding="utf-8").splitlines()
+    assert lines[0].startswith("#"), "first line must be a # comment"
+    rows = {}
+    for line in lines[1:]:
+        parts = line.split("\t")
+        assert len(parts) == n_keys + 1, line
+        assert parts[-1].isdigit() and int(parts[-1]) >= 1, line
+        for w in parts[:-1]:
+            assert w == w.lower(), line
+        key = tuple(parts[:-1])
+        assert key not in rows, f"duplicate {line}"
+        rows[key] = int(parts[-1])
+    return rows
+
+
+@pytest.fixture(scope="module")
+def kb():
+    return {
+        "words": {k[0]: v for k, v in load("en_IN_words.tsv", 1).items()},
+        "bigrams": load("en_IN_bigrams.tsv", 2),
+        "trigrams": load("en_IN_trigrams.tsv", 3),
+    }
+
+
+def test_keyboard_sizes(kb):
+    assert len(kb["words"]) == 150_000
+    assert len(kb["bigrams"]) == 400_000
+    assert len(kb["trigrams"]) == 500_000
+
+
+def test_keyboard_word_scale(kb):
+    w = kb["words"]
+    assert all(1 <= v <= 150 for v in w.values())
+    assert w["the"] == 150
+    assert 60 <= w["time"] <= 110
+    assert w["kya"] > 50 and w["lakh"] > 50
+    assert w["colour"] > w["color"]
+    assert w["fuck"] == 1
+
+
+def test_keyboard_phrases_use_known_words(kb):
+    words = kb["words"]
+    for key in list(kb["bigrams"]) + list(kb["trigrams"]):
+        for x in key:
+            assert x in words, key
+
+
+def test_keyboard_predictions(kb):
+    b, t = kb["bigrams"], kb["trigrams"]
+    assert b[("of", "the")] > 1_000_000
+    assert b[("i'm", "going")] > 10_000      # rebuilt from "I 'm going"
+    assert b[("i", "don't")] > 10_000        # rebuilt from "I do not"
+    assert b[("don't", "know")] > 10_000
+    assert b[("kya", "hai")] > 100 and b[("kar", "raha")] > 100
+    assert t[("i'm", "going", "to")] > 10_000
+    assert t[("how", "are", "you")] > 1_000
+    assert t[("kya", "kar", "rahe")] > 100
