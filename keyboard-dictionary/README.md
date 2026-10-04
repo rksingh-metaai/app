@@ -8,7 +8,7 @@ commercial use.
 |---|---|
 | Words | 165,113 |
 | Next-word predictions (bigrams) | 432,933 |
-| 3-word predictions (trigrams) | see `output/en_IN_trigrams.tsv` |
+| 3-word predictions (trigrams) | 4,842,972 (`output/en_IN_trigrams.tsv.gz`) |
 | Spelling | British/Indian forms rank first, and US forms are kept |
 | Licence | CC BY 3.0 attribution plus the SCOWL notice (see [Licences](#licences)) |
 
@@ -65,7 +65,7 @@ data/
   generated/unigrams.tsv    base vocabulary, per-billion frequency     (from tools/)
   generated/bigrams.tsv     next-word predictions, AOSP 0-255 scale    (from tools/)
   generated/contractions.tsv contraction frequencies                   (from tools/)
-  generated/trigrams.tsv    3-word predictions, AOSP 0-255 scale       (from tools/)
+  generated/trigrams.tsv.gz 3-word predictions, AOSP 0-255 scale (gzip, from tools/)
   contractions.txt          contraction -> split pair mapping used by tools/
   spelling_gb.tsv           US -> British spelling pairs
   indian_english.txt        Indian English terms, acronyms, food, festivals, languages
@@ -82,7 +82,7 @@ output/
   en_IN.combined            AOSP source word list -> compile to .dict
   en_IN.tsv                 word / frequency / offensive (for custom engines)
   en_IN_bigrams.tsv         word / next / frequency       (for custom engines)
-  en_IN_trigrams.tsv        word1 / word2 / next / frequency (custom engines only)
+  en_IN_trigrams.tsv.gz     word1 / word2 / next / frequency (gzip; custom engines only)
 tools/
   fetch_ngrams.sh           regenerates data/generated/ (streams ~250 GB)
   ngramcount/               Go streamer that sums n-gram counts over years
@@ -153,7 +153,7 @@ Then use the file in one of these ways:
   (India) → Dictionary → Add dictionary.
 - **Your own LatinIME fork**: put it at `app/src/main/res/raw/main_en_in.dict`.
 - **A custom engine**: load `output/en_IN.tsv`, `output/en_IN_bigrams.tsv`
-  and `output/en_IN_trigrams.tsv` into a trie or SQLite. To predict, look up
+  and `output/en_IN_trigrams.tsv.gz` (gunzip first) into a trie or SQLite. To predict, look up
   the last two words in the trigrams first, fall back to the last word in the
   bigrams, then fall back to word frequency. Skip rows where `offensive` is 1 unless the user has
   opted in.

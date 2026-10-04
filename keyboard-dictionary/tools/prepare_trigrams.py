@@ -8,7 +8,7 @@ Inputs:
   data/contractions.txt, data/offensive.txt
 
 Output:
-  data/generated/trigrams.tsv  "w1<TAB>w2<TAB>w3<TAB>f"  (f: 0-255, same
+  data/generated/trigrams.tsv.gz  "w1<TAB>w2<TAB>w3<TAB>f"  (f: 0-255, same
   scale as the bigram predictions: 255 + 32*log10(P(w3 | w1 w2)))
 
 Contractions are split in the source. A 3-gram starting with a clitic
@@ -22,6 +22,8 @@ second or third place are dropped: they are 2-word phrases in disguise.
 from __future__ import annotations
 
 import argparse
+import gzip
+import io
 import math
 from collections import defaultdict
 from pathlib import Path
@@ -124,7 +126,9 @@ def main() -> None:
                 counts[(neg, w2)] = followers
 
     kept = contexts = 0
-    with (GENERATED / "trigrams.tsv").open("w", encoding="utf-8") as out:
+    # gzip with mtime=0 so identical data gives an identical file.
+    with gzip.GzipFile(GENERATED / "trigrams.tsv.gz", "wb", mtime=0) as raw, \
+            io.TextIOWrapper(raw, encoding="utf-8", newline="\n") as out:
         out.write("# w1\tw2\tw3\tf  (Google Books Ngram 2020, fiction 3-grams)\n")
         for (w1, w2) in sorted(counts):
             followers = counts[(w1, w2)]

@@ -22,6 +22,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import gzip
+import io
 import math
 import re
 from dataclasses import dataclass, field
@@ -115,11 +117,24 @@ def per_billion_to_f(per_billion: float) -> int:
 
 
 def read_generated(name: str) -> list[list[str]]:
+    path = GENERATED / name
+    if name.endswith(".gz"):
+        text = gzip.decompress(path.read_bytes()).decode("utf-8")
+    else:
+        text = path.read_text(encoding="utf-8")
     return [
         line.split("\t")
-        for line in (GENERATED / name).read_text(encoding="utf-8").splitlines()
+        for line in text.splitlines()
         if line and not line.startswith("#")
     ]
+
+
+def write_text_gz(path: Path, text: str) -> None:
+    """Reproducible gzip (mtime=0): same content, same bytes."""
+    with gzip.GzipFile(path, "wb", mtime=0) as raw, io.TextIOWrapper(
+        raw, encoding="utf-8", newline="\n"
+    ) as out:
+        out.write(text)
 
 
 # ---------------------------------------------------------------- build
@@ -259,8 +274,8 @@ def write_trigrams_tsv(d: Dictionary, path: Path) -> int:
         return entry is not None and not entry.offensive
 
     trigrams: dict[tuple[str, str, str], int] = {}
-    if (GENERATED / "trigrams.tsv").exists():
-        for w1, w2, w3, f in read_generated("trigrams.tsv"):
+    if (GENERATED / "trigrams.tsv.gz").exists():
+        for w1, w2, w3, f in read_generated("trigrams.tsv.gz"):
             if ok(w1) and ok(w2) and ok(w3):
                 trigrams[(w1, w2, w3)] = int(f)
     for row in read_lines(DATA / "trigrams.txt"):
@@ -277,7 +292,7 @@ def write_trigrams_tsv(d: Dictionary, path: Path) -> int:
             trigrams.items(), key=lambda kv: (kv[0][0], kv[0][1], -kv[1], kv[0][2])
         )
     ]
-    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    write_text_gz(path, "\n".join(rows) + "\n")
     return len(trigrams)
 
 
@@ -304,7 +319,7 @@ def main() -> None:
     write_combined(d, args.out / "en_IN.combined")
     write_tsv(d, args.out / "en_IN.tsv")
     write_bigrams_tsv(d, args.out / "en_IN_bigrams.tsv")
-    trigrams = write_trigrams_tsv(d, args.out / "en_IN_trigrams.tsv")
+    trigrams = write_trigrams_tsv(d, args.out / "en_IN_trigrams.tsv.gz")
     if args.report_recased:
         for lower, word in sorted(d.recased):
             print(f"{lower} -> {word}  (f={d.entries[word].f})")

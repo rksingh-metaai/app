@@ -1,3 +1,4 @@
+import gzip
 import re
 import sys
 from pathlib import Path
@@ -135,3 +136,21 @@ def check_combined(text):
         if line.startswith("  bigram="):
             assert line[len("  bigram="):].split(",")[0] in known, line
     return words
+
+
+def test_trigrams(d, tmp_path):
+    out = tmp_path / "tri.tsv.gz"
+    n = build.write_trigrams_tsv(d, out)
+    assert n > 1_000_000
+    rows = {}
+    text = gzip.decompress(out.read_bytes()).decode("utf-8")
+    for line in text.splitlines()[1:]:
+        w1, w2, w3, f = line.split("\t")
+        assert 0 <= int(f) <= 255
+        for w in (w1, w2, w3):
+            assert w in d.entries and not d.entries[w].offensive, line
+        rows.setdefault((w1, w2), []).append(w3)
+    assert "to" in rows[("I'm", "going")]
+    assert "the" in rows[("one", "of")]
+    assert "know" in rows[("I", "don't")]
+    assert "ho" in rows[("kar", "rahe")]
