@@ -1,0 +1,59 @@
+# Indian English vocabulary. Format: words separated by spaces, optionally word=freq.
+# "@@ N" sets the default frequency for the lines that follow.
+
+@@ 170
+# money & numbers
+lakh lakhs crore crores rupee rupees paise Rs INR
+# everyday Indian English usage
+prepone preponed kindly needful timepass jugaad godown stepney batchmate
+batchmates co-brother cousin-brother revert updation intimation
+fresher freshers hostel tiffin canteen dicky airdash convent
+eve-teasing passout outstation PG
+
+@@ 150
+# finance / government / ID
+Aadhaar PAN UPI GST IFSC NEFT RTGS IMPS EMI KYC PIN pincode ration
+NRI OBC SC ST EWS PSU LIC SBI HDFC ICICI RBI SEBI NSE BSE Sensex Nifty
+Paytm PhonePe BHIM RuPay DigiLocker
+challan panchayat sarpanch tehsil taluka tehsildar collectorate
+MLA MP MLAs MPs Lok Sabha Rajya Vidhan
+# education & exams
+CBSE ICSE UPSC IAS IPS IFS NEET JEE IIT IITs IIM IIMs NIT AIIMS
+SSC HSC BTech MTech MBBS BCom MCom BSc MSc BBA MBA
+# organisations
+ISRO DRDO BCCI IPL ODI T20 IRCTC DTC BMC NDMC
+Flipkart Swiggy Zomato Ola Jio Airtel BSNL Doordarshan Bollywood Tollywood Kollywood
+
+@@ 140
+# food
+chai masala biryani samosa samosas dosa idli vada sambar paneer roti rotis
+chapati chapatis naan paratha parathas dal daal sabzi sabji ghee lassi
+chutney pakora pakoras pakoda jalebi gulab jamun ladoo laddoo laddu halwa
+poha upma pav bhaji chole bhature rajma khichdi raita thali kulfi
+panipuri golgappa bhel dhokla kachori kheer barfi rasgulla rasmalai
+pulao kebab tikka tandoori korma makhani aloo gobi bhindi palak
+achaar papad puri chaat momos maggi nimbu jeera haldi mirchi dhaniya
+# clothing & culture
+saree sari sarees kurta kurti dupatta lehenga salwar kameez dhoti sherwani
+bindi sindoor mangalsutra mehendi mehndi rangoli diya diyas
+puja pooja aarti prasad mandir gurudwara masjid dargah ashram
+yoga ayurveda karma dharma namaste namaskar mantra
+sangeet baraat mandap shaadi
+# people & address
+ji sahib saheb babu didi bhaiya bhai dada dadi nana nani chacha chachi
+mama mami bua mausi beta beti bahu jijaji
+# places & transport
+auto rickshaw autorickshaw tempo metro ghat ghats bazaar mela chowk nagar
+mohalla dhaba dhabas kirana haveli
+# cricket
+wicket wickets innings bowled LBW sixer sixes century IPL Ranji
+# festivals (common nouns of the festivals are in places.txt)
+Diwali Deepavali Holi Eid Navratri Navaratri Dussehra Dasara Ganesh
+Chaturthi Onam Pongal Baisakhi Vaisakhi Lohri Makar Sankranti Raksha
+Bandhan Rakhi Janmashtami Karva Chauth Chhath Bihu Ugadi Gudi Padwa
+Gurpurab Muharram Ramzan Ramadan Durga Puja Mubarak Bakrid Mahashivratri
+Ram Navami Hanuman Jayanti Teej Dhanteras Bhai Dooj Govardhan
+# languages
+Hindi Bengali Bangla Telugu Marathi Tamil Urdu Gujarati Kannada Malayalam
+Odia Oriya Punjabi Assamese Maithili Sanskrit Konkani Sindhi Kashmiri
+Nepali Manipuri Bodo Dogri Santali Tulu Bhojpuri Rajasthani Haryanvi Hinglish

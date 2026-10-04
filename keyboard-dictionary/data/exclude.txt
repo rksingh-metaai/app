@@ -1,0 +1,17 @@
+# Base-list tokens to drop. Subtitle tokenisation splits contractions
+# ("don't" -> "don" + "'t"); the fragments and common apostrophe-less
+# misspellings are dropped so the keyboard suggests the real contraction
+# (see contractions.txt) instead.
+
+# contraction fragments
+don doesn didn isn wasn aren weren haven hasn hadn couldn wouldn shouldn
+mustn needn shan ain ll ve re em
+
+# apostrophe-less misspellings
+dont doesnt didnt isnt wasnt arent werent havent hasnt hadnt couldnt
+wouldnt shouldnt mustnt cant wont im ive youre youve youll youd thats
+whats theyre theyve theyll hes shes wouldve couldve shouldve
+
+
+# subtitle noise
+mm hmm mmm uh um uhh umm hm ah ahh ooh huh eh

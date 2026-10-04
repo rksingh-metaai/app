@@ -1,0 +1,11 @@
+# Flagged with possibly_offensive=true and frequency 0. Keyboards with
+# "Block offensive words" enabled will not suggest these.
+fuck fucks fucking fucked fucker fuckers fuckin motherfucker motherfuckers
+shit shits shitty bullshit
+bitch bitches bitchy
+bastard bastards asshole assholes
+dick dicks dickhead cock cocks pussy cunt cunts twat
+whore whores slut sluts
+nigger niggers nigga niggas faggot faggots fag fags
+retard retarded spastic
+wanker wankers

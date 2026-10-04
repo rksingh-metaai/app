@@ -1,0 +1,10 @@
+# Lowercase words that are ordinary English even though a capitalised proper
+# noun (name / place / day) also exists. Both forms are kept.
+will may march august bill mark grace hope joy rose faith pat ray rich
+art jack bob frank sue dawn lily jasmine ruby amber pearl sunny
+china turkey chile jordan victoria nice reading bath
+god earth sun moon
+ganga lotus raja rani kali tara asha usha neha jaya vijay deep deepak
+prem dharma karma guru maya kiran kamal sagar ravi
+west lake salt hills port gateway jubilee nifty harsh dev ram tata gill
+android rakhi

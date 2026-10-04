@@ -1,0 +1,37 @@
+# Common Indian first names and surnames.
+
+# first names
+Aarav Aditya Akash Akshay Amit Anand Anil Ankit Anuj Arjun Arun Ashok Ayush
+Deepak Dev Dhruv Dinesh Ganesh Gaurav Gopal Harish Harsh Hemant Ishaan
+Jatin Karan Kartik Kishore Krishna Kunal Lokesh Mahesh Manish Manoj Mohan
+Mohit Mukesh Naveen Nikhil Nitin Pankaj Pawan Pradeep Prakash Pranav Prashant
+Praveen Rahul Rajat Rajesh Rakesh Ramesh Ravi Ritesh Rohan Rohit Sachin
+Sahil Sameer Sandeep Sanjay Santosh Sarthak Saurabh Shivam Shubham Siddharth
+Sumit Sunil Suresh Tarun Tushar Umesh Varun Vikas Vikram Vinay Vinod Vipin
+Vishal Vivek Yash Yogesh Abhishek Aman Ajay Alok Aniket Arvind Ashish
+Bharat Chetan Darshan Girish Hari Jagdish Kamal Mayank Naresh Om Parth
+Piyush Raghav Raj Rajiv Ranjit Rishi Sagar Shiv Sunny Tejas Uday Vijay
+Aarti Aditi Aishwarya Akanksha Ananya Anita Anjali Ankita Anu Anushka Aparna
+Archana Asha Bhavna Deepa Deepika Divya Diya Gauri Geeta Gita Isha Jaya
+Jyoti Kajal Kavita Kavya Kirti Komal Lakshmi Laxmi Madhu Mamta Manisha
+Meena Meera Megha Monika Neha Nidhi Nisha Pallavi Pooja Preeti Priya
+Priyanka Radha Rani Rashmi Rekha Riya Ritu Sakshi Sangeeta Sanjana Sapna
+Sarita Seema Shalini Shikha Shilpa Shreya Shruti Simran Sneha Sonia Sunita
+Swati Tanvi Tanya Usha Vandana Varsha Vidya Zoya
+Mohammed Mohammad Muhammad Ahmed Ali Imran Irfan Salman Shahid Faisal Arif
+Ayesha Fatima Farah Sana Zara Nazia Rukhsar
+Gurpreet Harpreet Manpreet Jaspreet Simranjit Amandeep Navdeep Gurdeep
+Joseph Thomas Mathew George Abraham Anthony Mary Annie
+
+# surnames
+Sharma Verma Gupta Singh Kumar Patel Shah Mehta Joshi Mishra Pandey Tiwari
+Yadav Jain Agarwal Aggarwal Bansal Goyal Mittal Chauhan Rathore Thakur
+Chaudhary Choudhary Saxena Srivastava Shukla Dubey Tripathi Dwivedi Trivedi
+Chaturvedi Bhatt Bhat Desai Kulkarni Deshpande Patil Pawar Jadhav Shinde
+Naik Nair Menon Pillai Iyer Iyengar Rao Reddy Naidu Raju Murthy Krishnan
+Subramanian Venkatesh Banerjee Chatterjee Mukherjee Bose Das Dutta Ghosh
+Sen Roy Chakraborty Bhattacharya Sarkar Ganguly Kapoor Khanna Malhotra
+Chopra Arora Bhatia Sethi Sood Ahuja Grover Gill Sandhu Sidhu Dhillon
+Grewal Khan Qureshi Siddiqui Ansari Sheikh Syed Mirza Hussain Rizvi
+Fernandes DSouza Pinto Rodrigues Kaur Rawat Negi Bisht Prasad Sinha
+Jha Thakkar Modi Gandhi Nehru Tata Ambani Birla

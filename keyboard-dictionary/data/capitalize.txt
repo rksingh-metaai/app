@@ -1,0 +1,14 @@
+# Words that are always capitalised in English. The lowercase base entry is
+# replaced (unless listed in keep_lowercase.txt).
+I
+Monday Tuesday Wednesday Thursday Friday Saturday Sunday
+January February March April May June July August September October November December
+English British American Indian Indians Hindu Hindus Muslim Muslims Sikh Sikhs
+Christian Christians Jain Jains Buddhist Buddhists Parsi
+Christmas Easter God Jesus Christ Allah
+Europe European Asia Asian Africa African America Australia Canada London
+Paris Dubai Singapore Pakistan Bangladesh Nepal Bhutan Sri Lanka Maldives
+China Japan Russia Germany France Italy Spain
+Google Facebook Instagram WhatsApp YouTube Twitter Amazon Netflix iPhone Android
+Mr Mrs Ms Dr
+

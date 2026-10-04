@@ -1,0 +1,43 @@
+# Indian states, union territories, cities, rivers and landmarks.
+# Multi-word names are listed as separate words; see bigrams.txt for pairs.
+
+@@ 170
+India Bharat Hindustan Delhi Mumbai Bombay Kolkata Calcutta Chennai Madras
+Bengaluru Bangalore Hyderabad Pune Ahmedabad
+
+@@ 140
+# states
+Andhra Pradesh Arunachal Assam Bihar Chhattisgarh Goa Gujarat Haryana
+Himachal Jharkhand Karnataka Kerala Madhya Maharashtra Manipur Meghalaya
+Mizoram Nagaland Odisha Orissa Punjab Rajasthan Sikkim Tamil Nadu
+Telangana Tripura Uttar Uttarakhand West Bengal
+# union territories
+Andaman Nicobar Chandigarh Dadra Nagar Haveli Daman Diu Jammu Kashmir
+Ladakh Lakshadweep Puducherry Pondicherry
+# cities
+Surat Jaipur Lucknow Kanpur Nagpur Indore Thane Bhopal Visakhapatnam Vizag
+Patna Vadodara Baroda Ghaziabad Ludhiana Agra Nashik Faridabad Meerut Rajkot
+Varanasi Banaras Kashi Srinagar Aurangabad Dhanbad Amritsar Allahabad
+Prayagraj Ranchi Howrah Coimbatore Jabalpur Gwalior Vijayawada Jodhpur
+Madurai Raipur Kota Guwahati Solapur Hubli Dharwad Mysuru Mysore
+Tiruchirappalli Trichy Bareilly Aligarh Tiruppur Gurugram Gurgaon Noida
+Moradabad Jalandhar Bhubaneswar Salem Warangal Thiruvananthapuram
+Trivandrum Bhiwandi Saharanpur Gorakhpur Guntur Bikaner Amravati Jamshedpur
+Bhilai Cuttack Firozabad Kochi Cochin Bhavnagar Dehradun Durgapur Asansol
+Nanded Kolhapur Ajmer Gulbarga Jamnagar Ujjain Siliguri Jhansi Mangaluru
+Mangalore Tirunelveli Udaipur Kozhikode Calicut Shimla Manali Darjeeling
+Ooty Rishikesh Haridwar Mathura Vrindavan Ayodhya Shirdi Tirupati Puri
+Gaya Bodh Gangtok Shillong Imphal Aizawl Kohima Itanagar Agartala Dispur
+Panaji Margao Port Blair Leh Kargil Jaisalmer Pushkar Mussoorie Nainital
+Kanyakumari Rameswaram Thanjavur Hampi Khajuraho Lonavala Mahabaleshwar
+Alleppey Alappuzha Munnar Coorg Kodagu Pondy Secunderabad Navi Kalyan
+Vasai Virar Dombivli Panvel Andheri Bandra Dadar Borivali Powai Colaba
+Juhu Worli Saket Dwarka Rohini Karol Bagh Chandni Chowk Connaught
+Koramangala Indiranagar Whitefield Jayanagar Hitech Gachibowli Madhapur
+Banjara Hills Jubilee Salt Lake Howrah Esplanade Adyar Anna Velachery
+# rivers, mountains, landmarks
+Ganga Ganges Yamuna Brahmaputra Godavari Krishna Kaveri Cauvery Narmada
+Tapti Mahanadi Sutlej Beas Chenab Jhelum Ravi Indus Himalaya Himalayas
+Vindhya Aravalli Sahyadri Nilgiri Nilgiris Deccan Konkan Malabar Kutch
+Sundarbans Thar Taj Mahal Qutub Minar Charminar Gateway Hawa
+Mahal Golconda Ajanta Ellora Konark Meenakshi
