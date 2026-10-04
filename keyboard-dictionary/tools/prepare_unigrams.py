@@ -33,7 +33,7 @@ GENERATED = ROOT / "data" / "generated"
 
 WORD_RE = re.compile(r"^[A-Za-z]+(?:['\-][A-Za-z]+)*$")
 
-WEIGHTS = {"fiction": 0.6, "gb": 0.4}
+WEIGHTS = {"fiction": 0.9, "gb": 0.1}
 # Per-billion floors. SCOWL words are trusted; the rest must be common.
 FLOOR_SCOWL = 6.0
 FLOOR_OTHER = 150.0

@@ -29,6 +29,28 @@ import build
 # trigram counts are relative to.
 FICTION_TOKENS = 116_539_799_483
 
+# Phrase selection. The keyboard shows 3 suggestions, so beyond the first few
+# candidates per context an entry mostly helps only while typing a prefix;
+# capping spreads the row budget over more contexts. A 3-word context whose
+# top suggestions equal those of its 2-word fallback adds nothing and is
+# dropped (PRUNE_REDUNDANT).
+BIGRAM_CAP = 12
+TRIGRAM_CAP = 5
+PRUNE_REDUNDANT = False
+PRUNE_DEPTH = 3
+# Typed text uses contractions far more than narrative books (which use them
+# mostly in dialogue), so their word frequencies are scaled up.
+CONTRACTION_BOOST = 2.0
+# Offensive words are exported at frequency 1 (never "corrected" away, never
+# suggested ahead of anything). Set False to export their natural frequency
+# when the keyboard filters offensive words itself.
+OFFENSIVE_AT_MIN = True
+# A hand-written (Hinglish / localisation) phrase added to a context that the
+# corpus already covers may rank at best CURATED_MAX_RANK there, so it never
+# pushes out the strongest real continuations ("good morning -> to" stays
+# ahead of "good morning -> ji").
+CURATED_MAX_RANK = 3
+
 WORD_TOP = 150      # frequency of "the"
 WORD_PER_DECADE = 30
 WORD_MIN = 1
@@ -60,10 +82,11 @@ def export(d: build.Dictionary, out: Path) -> dict[str, int]:
     offensive: set[str] = set()
     for e in d.entries.values():
         lw = e.word.lower()
-        if e.offensive:
+        if e.offensive and OFFENSIVE_AT_MIN:
             offensive.add(lw)
         else:
-            per_billion[lw] += effective_per_billion(e)
+            boost = CONTRACTION_BOOST if "'" in lw else 1.0
+            per_billion[lw] += effective_per_billion(e) * boost
         if e.curated or e.offensive:
             forced.add(lw)
     for lw in offensive:
@@ -112,7 +135,9 @@ def export(d: build.Dictionary, out: Path) -> dict[str, int]:
         estimate = p_from_f(int(row[2])) * per_billion[key[0]]
         bigram[key] = max(bigram[key], estimate)
         curated_bi.add(key)
-    chosen_bi = pick(bigram, curated_bi, build.BIGRAM_LIMIT)
+    data_bi = {k: v for k, v in bigram.items() if k not in curated_bi}
+    limit_curated(bigram, curated_bi, data_bi, 1)
+    chosen_bi = pick(cap(bigram, curated_bi, 1, BIGRAM_CAP), curated_bi, build.BIGRAM_LIMIT)
 
     # ---- trigrams: same, curated phrases estimated from their pair.
     trigram: dict[tuple[str, str, str], float] = defaultdict(float)
@@ -120,6 +145,7 @@ def export(d: build.Dictionary, out: Path) -> dict[str, int]:
         key = (w1.lower(), w2.lower(), w3.lower())
         if ok(*key):
             trigram[key] += int(count) * 1e9 / FICTION_TOKENS
+    data_tri = dict(trigram)
     curated_tri: set[tuple[str, str, str]] = set()
     for row in (build.read_lines(build.DATA / "trigrams.txt")
                 + build.read_lines(build.DATA / "hinglish_trigrams.txt")):
@@ -129,6 +155,10 @@ def export(d: build.Dictionary, out: Path) -> dict[str, int]:
         context = bigram.get(key[:2]) or per_billion[key[0]] * 0.01
         trigram[key] = max(trigram[key], p_from_f(int(row[3])) * context)
         curated_tri.add(key)
+    limit_curated(trigram, curated_tri - set(data_tri), data_tri, 2)
+    trigram = cap(trigram, curated_tri, 2, TRIGRAM_CAP)
+    if PRUNE_REDUNDANT:
+        trigram = prune_redundant(trigram, curated_tri, dict(chosen_bi))
     chosen_tri = pick(trigram, curated_tri, build.TRIGRAM_LIMIT)
 
     # ---- write.
@@ -144,6 +174,60 @@ def export(d: build.Dictionary, out: Path) -> dict[str, int]:
           "# word1\tword2\tword3\tfrequency (estimated occurrences per billion words)",
           (f"{a}\t{b}\t{c}\t{v}" for (a, b, c), v in chosen_tri))
     return {"words": len(word_rows), "bigrams": len(chosen_bi), "trigrams": len(chosen_tri)}
+
+
+def limit_curated(scores: dict, curated: set, data: dict, context_len: int) -> None:
+    """Keep each hand-written entry below the (CURATED_MAX_RANK-1)-th best
+    corpus entry of its context, when the corpus really covers that context:
+    its corpus total must be at least that of the hand-written entries (a
+    Hinglish context like "kya" only has stray corpus hits and is left alone)."""
+    by_context: dict[tuple, list[float]] = defaultdict(list)
+    for key, v in data.items():
+        by_context[key[:context_len]].append(v)
+    curated_total: dict[tuple, float] = defaultdict(float)
+    for key in curated:
+        if key not in data:
+            curated_total[key[:context_len]] += scores[key]
+    for key in curated:
+        if key in data:
+            continue
+        context = key[:context_len]
+        if sum(by_context.get(context, ())) < curated_total[context]:
+            continue
+        values = sorted(by_context[context], reverse=True)
+        if len(values) >= CURATED_MAX_RANK - 1 and CURATED_MAX_RANK > 1:
+            ceiling = values[CURATED_MAX_RANK - 2] * 0.99
+            scores[key] = min(scores[key], ceiling)
+
+
+def cap(scores: dict, forced: set, context_len: int, limit: int) -> dict:
+    """Keep at most `limit` best entries per context (forced ones always)."""
+    by_context: dict[tuple, list] = defaultdict(list)
+    for key, v in scores.items():
+        by_context[key[:context_len]].append((-v, key))
+    kept = {}
+    for entries in by_context.values():
+        entries.sort()
+        for i, (neg, key) in enumerate(entries):
+            if i < limit or key in forced:
+                kept[key] = -neg
+    return kept
+
+
+def top_followers(scores: dict, context_len: int, depth: int) -> dict[tuple, tuple]:
+    by_context: dict[tuple, list] = defaultdict(list)
+    for key, v in scores.items():
+        by_context[key[:context_len]].append((-v, key[-1]))
+    return {c: tuple(w for _, w in sorted(e)[:depth]) for c, e in by_context.items()}
+
+
+def prune_redundant(trigram: dict, forced: set, bigram: dict) -> dict:
+    """Drop 3-word contexts that would suggest exactly what the 2-word
+    fallback already suggests."""
+    tri_top = top_followers(trigram, 2, PRUNE_DEPTH)
+    bi_top = top_followers(bigram, 1, PRUNE_DEPTH)
+    redundant = {c for c, top in tri_top.items() if bi_top.get(c[1:]) == top}
+    return {k: v for k, v in trigram.items() if k[:2] not in redundant or k in forced}
 
 
 def pick(scores: dict, forced: set, limit: int) -> list[tuple[tuple, int]]:

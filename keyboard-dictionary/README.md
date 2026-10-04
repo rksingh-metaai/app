@@ -17,8 +17,8 @@ commercial use.
 - **General English vocabulary.** It comes from Google Books Ngram (2020
   export, books published 1990–2019).
   - **Frequencies** mix *English Fiction*, which is mostly dialogue and
-    closest to how people type (60% weight), with *British English*, whose
-    spelling Indian English follows (40% weight).
+    closest to how people type (90% weight), with *British English*, whose
+    spelling Indian English follows (10% weight).
   - **Spelling check.** Every word must appear in SCOWL (spell-checker word
     lists), or be common enough to be real slang (`gonna`, `okay`). Typos and
     scanning errors are therefore dropped.
@@ -172,6 +172,35 @@ the format the keyboard importer expects:
   plus the remaining `i do`, and "I 'm going" becomes `i'm going`.
 - **Hand-curated entries:** their frequencies are converted from the
   internal 0–255 floors with the same formulas.
+
+### Selection tuning and evaluation
+
+`tools/evaluate.py` is a stand-in for the keyboard's metrics. It runs on
+overheard conversations and chat posts from NLTK's data repository; that
+text is used for testing only and is never shipped. It reports next-word
+top-1/top-3 accuracy and keystrokes saved with 3 suggestions:
+
+```sh
+python3 tools/evaluate.py output/en_IN_words.tsv output/en_IN_bigrams.tsv output/en_IN_trigrams.tsv
+```
+
+The current choices were measured with it:
+
+- **Word frequencies** are weighted 90% fiction and 10% British English.
+  This mix is more conversational, and it raised keystrokes saved by 0.3
+  points.
+- **Contractions** get 2× frequency, because typed text uses far more of
+  them than books.
+- **Hand-written Hinglish and local phrases** rank at best third in contexts
+  the corpus covers (`good morning → to` stays ahead of `ji`). Contexts the
+  corpus barely covers, such as Hinglish ones, keep them at full strength.
+
+**Limits of this data:** removing the size limits entirely (about 11× more
+pairs and phrases) only raised keystrokes saved from 41.6% to 41.9%, so
+these sources are close to saturation. Bigger gains need engine features:
+learning from each user's typing, predicting the first word of a sentence,
+and a neural language model. They also need in-domain chat data to tune
+against.
 
 ## Compiling to a binary `.dict`
 
