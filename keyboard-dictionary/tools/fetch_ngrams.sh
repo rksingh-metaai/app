@@ -2,8 +2,8 @@
 # Regenerate data/generated/ from Google Books Ngram (2020 export, CC BY 3.0)
 # and SCOWL word lists (MIT-like licence).
 #
-# Streams ~30 GB from storage.googleapis.com; nothing large is kept on disk
-# besides the intermediate count files (~1 GB) in $WORK.
+# Streams ~250 GB from storage.googleapis.com; nothing large is kept on disk
+# besides the intermediate count files (a few GB) in $WORK.
 # Requires: go, python3, curl, and either apt-get (Debian/Ubuntu) or the
 # SCOWL "british-english-huge"/"american-english-huge" lists in $WORK.
 set -euo pipefail
@@ -38,3 +38,15 @@ printf "'s\n'm\n're\n'll\n've\n'd\nnot\nca\nwo\nai\n" >> vocab.txt
 
 python3 "$HERE/prepare_bigrams.py" --bigrams bi_fiction.tsv --fiction-unigrams uni_fiction.tsv
 echo "data/generated/ updated; now run: python3 build.py"
+
+# 3. Trigrams: English Fiction (549 files, ~220 GB), top-80k vocabulary.
+if [[ ! -s tri_fiction.tsv ]]; then
+  tail -n +2 "$HERE/../data/generated/unigrams.tsv" | head -80000 | cut -f1 \
+    | tr '[:upper:]' '[:lower:]' | sort -u > top80k_lower.txt
+  awk 'NR==FNR{k[$1]=1;next} (tolower($0) in k)' top80k_lower.txt vocab.txt > vocab3.txt
+  printf "'s\n'm\n're\n'll\n've\n'd\n" >> vocab3.txt
+  ./ngramcount -j 12 -min 100 -vocab vocab3.txt \
+    $(for i in $(seq 0 548); do printf "$B/eng-fiction/3-%05d-of-00549.gz " "$i"; done) > tri_fiction.tsv
+fi
+python3 "$HERE/prepare_trigrams.py" --trigrams tri_fiction.tsv
+echo "trigrams updated; now run: python3 build.py"

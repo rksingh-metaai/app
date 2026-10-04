@@ -8,6 +8,7 @@ commercial use.
 |---|---|
 | Words | 165,113 |
 | Next-word predictions (bigrams) | 432,933 |
+| 3-word predictions (trigrams) | see `output/en_IN_trigrams.tsv` |
 | Spelling | British/Indian forms rank first, and US forms are kept |
 | Licence | CC BY 3.0 attribution plus the SCOWL notice (see [Licences](#licences)) |
 
@@ -26,6 +27,12 @@ commercial use.
 - **Next-word predictions.** These are word pairs counted from 25 GB of
   English Fiction 2-grams. The 5k most common words get up to 12 predictions
   each, with fewer for rarer words.
+- **3-word predictions (trigrams).** These predict the next word from the
+  previous two (`I'm going → to`, `one of → the`, `thank you → for`). They
+  are counted from about 220 GB of English Fiction 3-grams, keeping the 5 best
+  next words for each two-word context. Standard AOSP/HeliBoard `.dict` files
+  only use bigrams, so trigrams ship as a separate TSV for keyboards with
+  their own prediction engine.
 - **Contractions** (`don't`, `I'm`, `you're` and so on). The source text
   splits them into separate words, so their frequencies are reconstructed from
   the word pairs. They also get their own predictions (`I'm going`,
@@ -58,6 +65,7 @@ data/
   generated/unigrams.tsv    base vocabulary, per-billion frequency     (from tools/)
   generated/bigrams.tsv     next-word predictions, AOSP 0-255 scale    (from tools/)
   generated/contractions.tsv contraction frequencies                   (from tools/)
+  generated/trigrams.tsv    3-word predictions, AOSP 0-255 scale       (from tools/)
   contractions.txt          contraction -> split pair mapping used by tools/
   spelling_gb.tsv           US -> British spelling pairs
   indian_english.txt        Indian English terms, acronyms, food, festivals, languages
@@ -74,11 +82,13 @@ output/
   en_IN.combined            AOSP source word list -> compile to .dict
   en_IN.tsv                 word / frequency / offensive (for custom engines)
   en_IN_bigrams.tsv         word / next / frequency       (for custom engines)
+  en_IN_trigrams.tsv        word1 / word2 / next / frequency (custom engines only)
 tools/
-  fetch_ngrams.sh           regenerates data/generated/ (streams ~30 GB)
+  fetch_ngrams.sh           regenerates data/generated/ (streams ~250 GB)
   ngramcount/               Go streamer that sums n-gram counts over years
   prepare_unigrams.py       vocabulary selection, casing and SCOWL validation
   prepare_bigrams.py        predictions and contraction reconstruction
+  prepare_trigrams.py       3-word predictions
 tests/                      pytest suite
 ```
 
@@ -90,7 +100,7 @@ python3 build.py              # writes output/ (takes a few seconds, works offli
 python3 -m pytest -q tests
 ```
 
-To regenerate the frequency data from scratch (about 30 minutes, needs Go
+To regenerate the frequency data from scratch (a few hours, needs Go
 and network access):
 
 ```sh
@@ -142,8 +152,10 @@ Then use the file in one of these ways:
 - **HeliBoard / OpenBoard**: go to Settings → Languages & Layouts → English
   (India) → Dictionary → Add dictionary.
 - **Your own LatinIME fork**: put it at `app/src/main/res/raw/main_en_in.dict`.
-- **A custom engine**: load `output/en_IN.tsv` and `output/en_IN_bigrams.tsv`
-  into a trie or SQLite. Skip rows where `offensive` is 1 unless the user has
+- **A custom engine**: load `output/en_IN.tsv`, `output/en_IN_bigrams.tsv`
+  and `output/en_IN_trigrams.tsv` into a trie or SQLite. To predict, look up
+  the last two words in the trigrams first, fall back to the last word in the
+  bigrams, then fall back to word frequency. Skip rows where `offensive` is 1 unless the user has
   opted in.
 
 ## Licences

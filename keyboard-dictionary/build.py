@@ -11,7 +11,7 @@ Pipeline (all inputs are in data/, nothing is downloaded):
      data/generated/bigrams.tsv plus the curated data/bigrams.txt.
   6. Write the AOSP combined word list (output/en_IN.combined) and a TSV.
 
-Regenerate data/generated/ with tools/fetch_ngrams.sh (needs ~30 GB of
+Regenerate data/generated/ with tools/fetch_ngrams.sh (needs ~250 GB of
 streaming download, no disk). Compile the .combined file to a binary .dict
 with AOSP dicttool (see README).
 
@@ -250,6 +250,26 @@ def write_tsv(d: Dictionary, path: Path) -> None:
     path.write_text("\n".join(rows) + "\n", encoding="utf-8")
 
 
+def write_trigrams_tsv(d: Dictionary, path: Path) -> int:
+    """3-word predictions for custom engines (AOSP .dict files hold only
+    bigrams). Rows whose words are not in the dictionary or are flagged
+    offensive are dropped."""
+    def ok(word: str) -> bool:
+        entry = d.get(word)
+        return entry is not None and not entry.offensive
+
+    rows = ["word1\tword2\tnext\tfrequency"]
+    source = GENERATED / "trigrams.tsv"
+    if source.exists():
+        rows += [
+            "\t".join(row)
+            for row in read_generated("trigrams.tsv")
+            if ok(row[0]) and ok(row[1]) and ok(row[2])
+        ]
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    return len(rows) - 1
+
+
 def write_bigrams_tsv(d: Dictionary, path: Path) -> None:
     rows = ["word\tnext\tfrequency"]
     for e in sorted_entries(d):
@@ -273,11 +293,12 @@ def main() -> None:
     write_combined(d, args.out / "en_IN.combined")
     write_tsv(d, args.out / "en_IN.tsv")
     write_bigrams_tsv(d, args.out / "en_IN_bigrams.tsv")
+    trigrams = write_trigrams_tsv(d, args.out / "en_IN_trigrams.tsv")
     if args.report_recased:
         for lower, word in sorted(d.recased):
             print(f"{lower} -> {word}  (f={d.entries[word].f})")
     bigrams = sum(len(e.bigrams) for e in d.entries.values())
-    print(f"{len(d.entries)} words, {bigrams} bigrams -> {args.out}/en_IN.combined")
+    print(f"{len(d.entries)} words, {bigrams} bigrams, {trigrams} trigrams -> {args.out}/")
 
 
 if __name__ == "__main__":
