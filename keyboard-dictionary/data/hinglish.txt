@@ -96,3 +96,5 @@ shukriya dhanyavaad dhanyawad meherbani maafi maaf sorry
 namaste namaskar pranam salaam adaab sat sri akal ram ram jai shri
 mubarak badhai badhaiyan shubh subh shubhkamnaye
 khush raho jeete raho dhyan rakhna khayal rakhna apna
+# words used in data/trigrams.txt
+kha hoon hun hain pe jao tum liya ji

@@ -258,16 +258,27 @@ def write_trigrams_tsv(d: Dictionary, path: Path) -> int:
         entry = d.get(word)
         return entry is not None and not entry.offensive
 
+    trigrams: dict[tuple[str, str, str], int] = {}
+    if (GENERATED / "trigrams.tsv").exists():
+        for w1, w2, w3, f in read_generated("trigrams.tsv"):
+            if ok(w1) and ok(w2) and ok(w3):
+                trigrams[(w1, w2, w3)] = int(f)
+    for row in read_lines(DATA / "trigrams.txt"):
+        key, f = (row[0], row[1], row[2]), int(row[3])
+        for w in key:
+            if not ok(w):
+                raise ValueError(f"trigrams.txt: {w!r} is not in the dictionary")
+        trigrams[key] = max(trigrams.get(key, 0), f)
+
     rows = ["word1\tword2\tnext\tfrequency"]
-    source = GENERATED / "trigrams.tsv"
-    if source.exists():
-        rows += [
-            "\t".join(row)
-            for row in read_generated("trigrams.tsv")
-            if ok(row[0]) and ok(row[1]) and ok(row[2])
-        ]
+    rows += [
+        f"{w1}\t{w2}\t{w3}\t{f}"
+        for (w1, w2, w3), f in sorted(
+            trigrams.items(), key=lambda kv: (kv[0][0], kv[0][1], -kv[1], kv[0][2])
+        )
+    ]
     path.write_text("\n".join(rows) + "\n", encoding="utf-8")
-    return len(rows) - 1
+    return len(trigrams)
 
 
 def write_bigrams_tsv(d: Dictionary, path: Path) -> None:

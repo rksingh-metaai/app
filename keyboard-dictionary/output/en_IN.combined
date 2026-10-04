@@ -255705,6 +255705,12 @@ dictionary=main:en_in,locale=en_IN,description=English (India),date=1791072000,v
   bigram=could,f=188
  word=humko,f=95
  word=humse,f=95
+ word=hun,f=95
+  bigram=var,f=233
+  bigram=I,f=225
+  bigram=and,f=222
+  bigram=Dred,f=220
+  bigram=hun,f=218
  word=huntsman,f=95
   bigram=and,f=227
   bigram=was,f=221
@@ -256183,6 +256189,7 @@ dictionary=main:en_in,locale=en_IN,description=English (India),date=1791072000,v
   bigram=was,f=222
   bigram=had,f=218
   bigram=asked,f=208
+ word=kha,f=95
  word=khaiye,f=95
  word=khao,f=95
  word=Khartoum,f=95
@@ -316877,12 +316884,6 @@ dictionary=main:en_in,locale=en_IN,description=English (India),date=1791072000,v
   bigram=with,f=223
   bigram=in,f=219
   bigram=to,f=217
- word=hun,f=86
-  bigram=var,f=233
-  bigram=I,f=225
-  bigram=and,f=222
-  bigram=Dred,f=220
-  bigram=hun,f=218
  word=hunches,f=86
   bigram=over,f=231
   bigram=and,f=227
