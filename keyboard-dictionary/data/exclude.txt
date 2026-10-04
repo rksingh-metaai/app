@@ -1,17 +1,10 @@
-# Base-list tokens to drop. Subtitle tokenisation splits contractions
-# ("don't" -> "don" + "'t"); the fragments and common apostrophe-less
-# misspellings are dropped so the keyboard suggests the real contraction
-# (see contractions.txt) instead.
-
-# contraction fragments
-don doesn didn isn wasn aren weren haven hasn hadn couldn wouldn shouldn
-mustn needn shan ain ll ve re em
-
-# apostrophe-less misspellings
-dont doesnt didnt isnt wasnt arent werent havent hasnt hadnt couldnt
-wouldnt shouldnt mustnt cant wont im ive youre youve youll youd thats
-whats theyre theyve theyll hes shes wouldve couldve shouldve
-
-
-# subtitle noise
-mm hmm mmm uh um uhh umm hm ah ahh ooh huh eh
+# Words to drop from data/generated/unigrams.tsv (book-corpus artefacts that
+# should never be suggested while typing).
+ofthe ofa ifI inthe tothe andthe onthe forthe isthe atthe tion edn eds
+della vous nous dans pour avec sind nicht eine einem einer mais avait
+etait sont ich und der die das des une qui que por para bom
+Verlag Routledge Pty laude
+# bibliography / publisher noise from the British books corpus
+Elsevier GmbH Acad Appl Physiol Intemational Institut Histoire Geschichte
+Nacional Nationale Harmondsworth HarperCollins Longman Heinemann Hodder
+Kluwer Ashgate Unwin Kegan Harcourt Schuster McGraw Houghton Pte MPa mmol

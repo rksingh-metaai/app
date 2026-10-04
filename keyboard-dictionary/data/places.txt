@@ -41,3 +41,109 @@ Tapti Mahanadi Sutlej Beas Chenab Jhelum Ravi Indus Himalaya Himalayas
 Vindhya Aravalli Sahyadri Nilgiri Nilgiris Deccan Konkan Malabar Kutch
 Sundarbans Thar Taj Mahal Qutub Minar Charminar Gateway Hawa
 Mahal Golconda Ajanta Ellora Konark Meenakshi
+
+@@ 120
+# more cities and district headquarters, by state
+# Andhra Pradesh / Telangana
+Nellore Kurnool Kadapa Anantapur Anantapuram Chittoor Ongole Eluru Kakinada
+Rajahmundry Rajamahendravaram Srikakulam Vizianagaram Machilipatnam Tenali
+Proddatur Hindupur Nandyal Bhimavaram Karimnagar Nizamabad Khammam
+Mahbubnagar Nalgonda Adilabad Siddipet Suryapet Ramagundam Mancherial
+Sangareddy Medak Vikarabad Kamareddy Jagtial Peddapalli Wanaparthy
+# Assam & north-east
+Dibrugarh Jorhat Silchar Tezpur Nagaon Tinsukia Bongaigaon Dhubri Goalpara
+Sivasagar Barpeta Karimganj Lakhimpur Haflong Diphu Dimapur Mokokchung Tura
+Jowai Lunglei Champhai Udaipur Dharmanagar Kailashahar Pasighat Tawang Ziro
+Bomdila Namchi Gangtok Pelling
+# Bihar & Jharkhand
+Muzaffarpur Bhagalpur Darbhanga Purnia Arrah Begusarai Katihar Munger
+Chhapra Saharsa Sasaram Hajipur Dehri Bettiah Motihari Siwan Nalanda
+Rajgir Buxar Jehanabad Aurangabad Samastipur Madhubani Sitamarhi Kishanganj
+Bokaro Deoghar Hazaribagh Giridih Ramgarh Dumka Chaibasa Palamu Daltonganj
+# Chhattisgarh & Madhya Pradesh
+Bilaspur Korba Durg Rajnandgaon Jagdalpur Ambikapur Raigarh Dhamtari
+Sagar Satna Rewa Ratlam Dewas Murwara Katni Singrauli Burhanpur Khandwa
+Bhind Morena Chhindwara Guna Shivpuri Vidisha Damoh Mandsaur Neemuch
+Khargone Hoshangabad Narmadapuram Itarsi Sehore Betul Seoni Balaghat
+Mandla Shahdol Chhatarpur Tikamgarh Datia Pachmarhi Omkareshwar Maheshwar
+Sanchi Orchha
+# Gujarat
+Gandhinagar Junagadh Gandhidham Anand Nadiad Morbi Mehsana Bharuch Vapi
+Navsari Veraval Porbandar Godhra Palanpur Bhuj Valsad Patan Dahod Botad
+Amreli Surendranagar Kheda Dwarka Somnath Ankleshwar Kalol Modasa Himmatnagar
+# Haryana, Punjab, Himachal, J&K, Uttarakhand
+Panipat Ambala Yamunanagar Rohtak Hisar Karnal Sonipat Panchkula Bhiwani
+Sirsa Bahadurgarh Jind Thanesar Kurukshetra Kaithal Rewari Palwal Narnaul
+Patiala Bathinda Mohali Pathankot Hoshiarpur Moga Firozpur Kapurthala
+Phagwara Abohar Malerkotla Khanna Barnala Sangrur Fazilka Muktsar Faridkot
+Ropar Rupnagar Nawanshahr Gurdaspur Batala Tarn Taran
+Solan Mandi Dharamshala Kullu Hamirpur Una Bilaspur Chamba Kangra Kasauli
+Dalhousie Palampur Kinnaur Spiti Kaza Keylong
+Anantnag Baramulla Sopore Kathua Udhampur Rajouri Poonch Pulwama Kupwara
+Gulmarg Pahalgam Sonamarg Katra Patnitop
+Haldwani Roorkee Rudrapur Kashipur Almora Pithoragarh Ranikhet Kotdwar
+Tehri Uttarkashi Chamoli Joshimath Badrinath Kedarnath Gangotri Yamunotri
+Auli Lansdowne Chakrata Kausani Mukteshwar Bageshwar Champawat
+# Karnataka
+Belagavi Belgaum Kalaburagi Davanagere Ballari Bellary Vijayapura Bijapur
+Shivamogga Shimoga Tumakuru Tumkur Raichur Bidar Hosapete Hospet Gadag
+Udupi Hassan Mandya Chitradurga Kolar Chikkamagaluru Chikmagalur Karwar
+Sirsi Bhatkal Gokarna Madikeri Badami Pattadakal Aihole Bagalkot Haveri
+Koppal Yadgir Chamarajanagar Ramanagara Hosur Manipal Murudeshwar Dandeli
+# Kerala
+Thrissur Kollam Kannur Palakkad Malappuram Kottayam Kasaragod Pathanamthitta
+Idukki Wayanad Kalpetta Thodupuzha Varkala Kovalam Thekkady Kumarakom
+Guruvayur Sabarimala Ernakulam Aluva Angamaly Changanassery Tirur Vadakara
+# Maharashtra & Goa
+Akola Latur Dhule Ahmednagar Ahilyanagar Chandrapur Parbhani Jalgaon Ichalkaranji
+Jalna Bhusawal Satara Sangli Miraj Beed Yavatmal Gondia Wardha Osmanabad
+Dharashiv Nandurbar Ratnagiri Sindhudurg Malvan Alibag Bhandara Buldhana
+Washim Hingoli Gadchiroli Baramati Lonavla Khandala Matheran Panchgani
+Karad Pandharpur Ambernath Badlapur Ulhasnagar Mira Bhayandar Palghar
+Thane Kalyan Shirdi Shegaon Nashik Trimbakeshwar Alibaug Ganpatipule
+Vasco Mapusa Ponda Calangute Baga Anjuna Candolim Colva Palolem
+# Odisha
+Rourkela Berhampur Brahmapur Sambalpur Balasore Baleshwar Bhadrak
+Baripada Jharsuguda Jeypore Bargarh Rayagada Angul Dhenkanal Keonjhar
+Kendrapara Jajpur Paradip Koraput Phulbani Bolangir Balangir Chilika
+# Rajasthan
+Bhilwara Alwar Bharatpur Sikar Pali Sri Ganganagar Tonk Kishangarh Beawar
+Hanumangarh Dholpur Sawai Madhopur Churu Jhunjhunu Barmer Nagaur Chittorgarh
+Banswara Dungarpur Bundi Baran Jhalawar Karauli Dausa Pratapgarh Sirohi
+Rajsamand Jalore Mount Abu Ranthambore Kumbhalgarh Mandawa Shekhawati Nathdwara
+# Tamil Nadu & Puducherry
+Tiruppur Erode Vellore Thoothukudi Tuticorin Dindigul Kanchipuram Karur
+Kumbakonam Nagercoil Cuddalore Sivakasi Tiruvannamalai Pollachi Rajapalayam
+Pudukkottai Hosur Ambur Karaikudi Neyveli Nagapattinam Villupuram Namakkal
+Krishnagiri Dharmapuri Theni Virudhunagar Ramanathapuram Sivaganga Ariyalur
+Perambalur Tiruvallur Chengalpattu Kodaikanal Yercaud Mahabalipuram
+Mamallapuram Velankanni Chidambaram Karaikal Mahe Yanam
+# Uttar Pradesh
+Mathura Firozabad Muzaffarnagar Shahjahanpur Rampur Mirzapur Bulandshahr
+Sambhal Amroha Hardoi Fatehpur Raebareli Rae Bareli Orai Sitapur Bahraich
+Modinagar Unnao Jaunpur Lakhimpur Hathras Banda Pilibhit Barabanki Khurja
+Gonda Mainpuri Lalitpur Etawah Deoria Ballia Azamgarh Basti Etah Faizabad
+Sultanpur Mau Ghazipur Budaun Chandauli Pratapgarh Kannauj Farrukhabad
+Bijnor Baghpat Shamli Hapur Greater Noida Mughalsarai Sarnath Vindhyachal
+Chitrakoot Kushinagar Deoband
+# West Bengal
+Durgapur Bardhaman Burdwan Kharagpur Haldia Malda Baharampur Krishnanagar
+Medinipur Midnapore Jalpaiguri Cooch Behar Balurghat Raiganj Bankura
+Purulia Bolpur Santiniketan Shantiniketan Digha Kalimpong Kurseong Mirik
+Barasat Barrackpore Bally Serampore Chinsurah Hooghly Diamond Harbour
+# Delhi NCR neighbourhoods and major city areas
+Lajpat Nagar Vasant Kunj Janakpuri Pitampura Mayur Vihar Laxmi Nagar
+Greater Kailash Hauz Khas Nehru Place Rajouri Garden Paharganj Mehrauli
+Sarojini Okhla Shahdara Narela Najafgarh Dilshad Preet Vihar
+Malad Goregaon Kandivali Ghatkopar Kurla Chembur Mulund Vikhroli Sion
+Matunga Parel Byculla Lokhandwala Versova Santacruz Vile Parle
+HSR Marathahalli Hebbal Yelahanka Malleshwaram Basavanagudi
+Bellandur Sarjapur BTM Banashankari Rajajinagar
+Kondapur Kukatpally Ameerpet Begumpet Somajiguda Miyapur Uppal Dilsukhnagar
+Andheri Kothrud Hinjewadi Wakad Baner Aundh Viman Hadapsar Kharadi Shivajinagar
+Nagar Mylapore Tambaram Porur Guindy Nungambakkam Egmore Besant
+Ballygunge Behala Gariahat Park Rajarhat Tollygunge Jadavpur
+# countries & neighbours frequently mentioned
+Afghanistan Myanmar Burma Tibet Iran Iraq Saudi Arabia Qatar Kuwait Oman
+Bahrain Emirates UAE Sharjah Abu Dhabi Muscat Riyadh Doha Kathmandu Dhaka
+Colombo Thimphu Karachi Lahore Islamabad Kabul

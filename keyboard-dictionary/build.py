@@ -1,52 +1,50 @@
 #!/usr/bin/env python3
 """Build an English (India) dictionary for AOSP-based Android keyboards.
 
-Pipeline:
-  1. Base English word frequencies (OpenSubtitles 2018 top-50k, CC-BY-SA 4.0).
-  2. Clean-up: drop tokenizer fragments / junk, fix capitalisation.
+Pipeline (all inputs are in data/, nothing is downloaded):
+  1. Base vocabulary and frequencies: data/generated/unigrams.tsv
+     (Google Books Ngram 2020, CC BY 3.0, validated against SCOWL).
+  2. Contractions: data/generated/contractions.tsv.
   3. Indian spelling preferences (British forms preferred: colour, organise).
-  4. Curated layers: Indian English terms, places, names, Hinglish, contractions.
-  5. Flag offensive words, attach curated bigrams.
-  6. Write AOSP combined wordlist (output/en_IN.combined) + a TSV.
+  4. Curated Indian layers: Indian English terms, places, names, Hinglish.
+  5. Offensive words are flagged; next-word predictions are attached from
+     data/generated/bigrams.tsv plus the curated data/bigrams.txt.
+  6. Write the AOSP combined word list (output/en_IN.combined) and a TSV.
 
-Compile the .combined file to a binary .dict with AOSP dicttool (see README).
+Regenerate data/generated/ with tools/fetch_ngrams.sh (needs ~30 GB of
+streaming download, no disk). Compile the .combined file to a binary .dict
+with AOSP dicttool (see README).
 
 Usage:
-  python3 build.py                 # downloads + caches base list, builds output/
-  python3 build.py --base FILE     # use a local "word count" frequency file
+  python3 build.py [--report-recased]
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import math
 import re
-import sys
-import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
-CACHE = ROOT / ".cache"
+GENERATED = DATA / "generated"
 OUTPUT = ROOT / "output"
-
-BASE_URL = (
-    "https://raw.githubusercontent.com/hermitdave/FrequencyWords/"
-    "master/content/2018/en/en_50k.txt"
-)
-BASE_SHA256 = "5351ff405b1126ef555791dd4d9798a48e3e9a501a9fc481a9da957752cfb458"
 
 # Dictionary header. Bump VERSION whenever the word list changes; DATE is kept
 # fixed per version so builds are reproducible.
 DICT_ID = "main:en_in"
 LOCALE = "en_IN"
 DESCRIPTION = "English (India)"
-VERSION = 1
+VERSION = 2
 DATE = 1791072000  # 2026-10-04 00:00 UTC
 
-# AOSP unigram frequencies are 0..255. Base words are log-scaled into this band.
+# Per-billion frequencies are mapped to the AOSP 0..255 unigram scale with
+# f = F_SLOPE * log10(per_billion) + F_OFFSET, clamped to [F_MIN, F_MAX].
+# "the" (~57M per billion) lands at ~250, a 6-per-billion word at ~20.
+F_SLOPE = 33.0
+F_OFFSET = -5.7
 F_MAX = 250
 F_MIN = 15
 # Offensive words stay in the dictionary (so they aren't "corrected" into
@@ -54,12 +52,11 @@ F_MIN = 15
 # "block offensive words" is on.
 F_OFFENSIVE = 0
 # British spelling is preferred; the US variant is kept but ranked below it.
-US_VARIANT_PENALTY = 40
+US_VARIANT_PENALTY = 25
 # A capitalised/acronym form kept next to an ordinary lowercase word ranks
 # this much below it ("West" < "west", "PIN" < "pin").
 CASED_VARIANT_GAP = 10
 
-BASE_WORD_RE = re.compile(r"^[a-z]+$")
 CURATED_WORD_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9'.\-]*$")
 
 
@@ -112,50 +109,17 @@ def read_curated(name: str, default_f: int) -> list[tuple[str, int]]:
     return out
 
 
-# ---------------------------------------------------------------- base list
+def per_billion_to_f(per_billion: float) -> int:
+    f = F_SLOPE * math.log10(max(per_billion, 1e-9)) + F_OFFSET
+    return max(F_MIN, min(F_MAX, round(f)))
 
 
-def fetch_base() -> Path:
-    CACHE.mkdir(exist_ok=True)
-    path = CACHE / "en_50k.txt"
-    if not path.exists():
-        print(f"Downloading {BASE_URL}", file=sys.stderr)
-        with urllib.request.urlopen(BASE_URL, timeout=60) as resp:
-            path.write_bytes(resp.read())
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    if digest != BASE_SHA256:
-        raise SystemExit(f"{path}: sha256 mismatch ({digest}); delete it and retry")
-    return path
-
-
-def load_counts(path: Path) -> dict[str, int]:
-    """Raw `word count` lines, unfiltered."""
-    counts: dict[str, int] = {}
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        parts = raw.split()
-        if len(parts) == 2:
-            counts[parts[0]] = counts.get(parts[0], 0) + int(parts[1])
-    return counts
-
-
-def filter_base(counts: dict[str, int], exclude: set[str]) -> dict[str, int]:
-    return {
-        word: count
-        for word, count in counts.items()
-        if BASE_WORD_RE.match(word)
-        and word not in exclude
-        and (len(word) > 1 or word in ("a", "i"))
-    }
-
-
-def scale(counts: dict[str, int]) -> dict[str, int]:
-    hi = math.log(max(counts.values()))
-    lo = math.log(min(counts.values()))
-    span = (hi - lo) or 1.0
-    return {
-        w: round(F_MIN + (F_MAX - F_MIN) * (math.log(c) - lo) / span)
-        for w, c in counts.items()
-    }
+def read_generated(name: str) -> list[list[str]]:
+    return [
+        line.split("\t")
+        for line in (GENERATED / name).read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#")
+    ]
 
 
 # ---------------------------------------------------------------- build
@@ -182,8 +146,8 @@ class Dictionary:
     def recase(self, word: str, f: int, keep_lowercase: set[str]) -> int:
         """Add the properly cased `word`, merging it with a lowercase entry.
 
-        Normally the lowercase base entry ("delhi") is replaced and its
-        frequency inherited. It is kept instead when it is ordinary English
+        Normally the lowercase entry ("delhi") is replaced and its frequency
+        inherited. It is kept instead when it is ordinary English
         (keep_lowercase.txt: "will", "west"), was itself curated, or `word` is
         an acronym ("PIN" vs "pin"); the cased form is then ranked just below
         the lowercase one so it never hijacks everyday typing.
@@ -195,6 +159,8 @@ class Dictionary:
             return self.put(word, f, curated=True).f
         acronym = len(word) > 1 and word.isupper()
         if acronym or lower in keep_lowercase or entry.curated:
+            # The curated floor never lifts the cased form above the
+            # lowercase word (data-derived frequencies are kept as they are).
             f = max(0, min(f, entry.f - CASED_VARIANT_GAP))
             return self.put(word, f, curated=True).f
         del self.entries[lower]
@@ -202,31 +168,17 @@ class Dictionary:
         return self.put(word, max(f, entry.f), curated=True).f
 
 
-def build(base_path: Path) -> Dictionary:
+def build() -> Dictionary:
     exclude = read_wordset("exclude.txt")
     keep_lowercase = read_wordset("keep_lowercase.txt")
     offensive = {w.lower() for w in read_wordset("offensive.txt")}
 
-    raw_counts = load_counts(base_path)
     d = Dictionary()
-    for word, f in scale(filter_base(raw_counts, exclude)).items():
-        d.put(word, f)
-
-    # Proper-case common English proper nouns (I, Monday, January, English…).
-    # Only words present in the base list are recased.
-    for word in sorted(read_wordset("capitalize.txt")):
-        base = d.get(word.lower())
-        if base:
-            d.recase(word, base.f, keep_lowercase)
-
-    # Contractions: "@fragment" borrows the frequency of the split-off token
-    # from the base list (subtitles tokenise "don't" as "don" + "'t").
-    scaled_raw = scale(raw_counts)
-    for row in read_lines(DATA / "contractions.txt"):
-        word, spec = row[0], row[1]
-        f = scaled_raw.get(spec[1:], 0) if spec.startswith("@") else int(spec)
-        if f:
-            d.put(word, f, curated=True)
+    for word, per_billion in read_generated("unigrams.tsv"):
+        if word not in exclude:
+            d.put(word, per_billion_to_f(float(per_billion)))
+    for word, per_billion in read_generated("contractions.tsv"):
+        d.put(word, per_billion_to_f(float(per_billion)), curated=True)
 
     # Indian English follows British spelling: "colour" outranks "color".
     for us, gb in read_lines(DATA / "spelling_gb.tsv"):
@@ -238,9 +190,10 @@ def build(base_path: Path) -> Dictionary:
         if us_entry:
             us_entry.f = max(F_MIN, min(us_entry.f, top - US_VARIANT_PENALTY))
 
-    # Curated Indian layers. Default frequencies are the fallback when the
-    # word isn't already more frequent in the base list.
+    # Curated Indian layers. A curated frequency is a floor: Indian users type
+    # these far more often than British/fiction books suggest.
     for name, default_f in (
+        ("modern.txt", 160),
         ("indian_english.txt", 140),
         ("places.txt", 130),
         ("names.txt", 115),
@@ -254,12 +207,17 @@ def build(base_path: Path) -> Dictionary:
             entry.offensive = True
             entry.f = F_OFFENSIVE
 
+    for first, second, f in read_generated("bigrams.tsv"):
+        a, b = d.get(first), d.get(second)
+        if a and b and not a.offensive and not b.offensive:
+            a.bigrams[second] = int(f)
     for row in read_lines(DATA / "bigrams.txt"):
         first, second, f = row[0], row[1], int(row[2])
         for w in (first, second):
             if w not in d.entries:
                 raise ValueError(f"bigrams.txt: {w!r} is not in the dictionary")
-        d.entries[first].bigrams[second] = f
+        bigrams = d.entries[first].bigrams
+        bigrams[second] = max(bigrams.get(second, 0), f)
 
     return d
 
@@ -292,24 +250,32 @@ def write_tsv(d: Dictionary, path: Path) -> None:
     path.write_text("\n".join(rows) + "\n", encoding="utf-8")
 
 
+def write_bigrams_tsv(d: Dictionary, path: Path) -> None:
+    rows = ["word\tnext\tfrequency"]
+    for e in sorted_entries(d):
+        for target, bf in sorted(e.bigrams.items(), key=lambda kv: (-kv[1], kv[0])):
+            rows.append(f"{e.word}\t{target}\t{bf}")
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--base", type=Path, help="local 'word count' frequency file")
     parser.add_argument("--out", type=Path, default=OUTPUT)
     parser.add_argument(
         "--report-recased",
         action="store_true",
-        help="list lowercase base words replaced by a capitalised form",
+        help="list lowercase words replaced by a capitalised curated form",
     )
     args = parser.parse_args()
 
-    d = build(args.base or fetch_base())
+    d = build()
     args.out.mkdir(parents=True, exist_ok=True)
     write_combined(d, args.out / "en_IN.combined")
     write_tsv(d, args.out / "en_IN.tsv")
+    write_bigrams_tsv(d, args.out / "en_IN_bigrams.tsv")
     if args.report_recased:
         for lower, word in sorted(d.recased):
-            print(f"{lower} -> {word}  (base f={d.entries[word].f})")
+            print(f"{lower} -> {word}  (f={d.entries[word].f})")
     bigrams = sum(len(e.bigrams) for e in d.entries.values())
     print(f"{len(d.entries)} words, {bigrams} bigrams -> {args.out}/en_IN.combined")
 

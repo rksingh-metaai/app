@@ -1,0 +1,3 @@
+# Lowercase words accepted from the book corpus although SCOWL lacks them.
+cafe cafes y'know cyber nano rearview walkie mins clientele attaches
+emoji emojis wifi

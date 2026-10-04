@@ -26,3 +26,73 @@ kaha kehna bolna sunna dekhna jana aana khaana peena sona uthna baitho
 ruko ruk jaldi wapas bas ekbaar dobara pehle baad mein ke ki ka se par
 tak liye saath bina sirf shayad zaroor jarur haanji nahiji acchi acche
 bura buri bure naya nayi naye purana purani sasta mehnga
+
+@@ 95
+# verbs (with common spelling variants)
+aana aaya aayi aaye aate aata aati aaoge aaunga aaungi aayega aayegi
+jaana jaata jaati jaate jaunga jaungi jayega jayegi jaoge chalte chalti
+karta karti karte karunga karungi karega karegi karoge kiya kiye kiyi
+kar diya kardo kardo karlo kar lo karke karne karta hoon
+dena deta deti dete dunga dungi dega degi doge diya diye dijiye
+lena leta leti lete lunga lungi lega legi loge liya liye lijiye
+bolna bolta bolti bolte bolunga bolega bola boli bole boliye
+kehna kehta kehti kehte kahunga kahega kaha kahi kahe kahiye
+sunna sunta sunti sunte sunega suna suni sune suniye sunao
+dekhna dekhta dekhti dekhte dekhega dekha dekhi dekhe dekhiye dikha dikhao
+samajhna samajhta samajhti samjhe samjhi samjho samjhao
+milna milta milti mila mili mile milega milegi milo milke
+rehna rehta rehti rehte rahega rahegi rehna raho rukna ruka ruki
+baithna baitha baithi baithe baithiye uthna utha uthi utho
+khana khata khati khate khaya khayi khao khaiye khilao
+peena peeta peeti piya piyo pijiye pilao
+sona sota soti soya soyi soja sojao
+padhna padhta padhti padha padhi padho padhai likhna likha likho likhai
+sochna sochta sochti socha sochi socho bhejna bheja bhejo bhejdo
+lagna lagta lagti lage lagega lagegi lagao lagaya
+pahunchna pahuncha pahunchi pahuncho pahunch nikalna nikla nikli niklo
+bhoolna bhool bhool gaya bhula bhooli yaad yaadein
+chahna chahta chahti chahte chahiye chaahiye
+hona hota hoti hote hogaya hogya hogayi hogyi hojayega hojaega
+sakna sakta sakti sakte sakoge sakega
+khelna khelta khela khelo jeetna jeeta jeeti haarna haara haari
+rona roya royi rote hasna hasa hasi haso hassi muskurana
+bulana bulaya bulao puchna pucha puchho poochho poocha batana bataya batao bataiye
+# pronouns, question words, connectors
+main mein mujhko humko tumko aapko unhe unhein inhe inhein unse isse usse
+mujhse tumse aapse humse kisko kisne kiska kiski kiske kuchh kuch bhi
+kaunsa kaunsi konsa konsi kidhar idhar udhar yahan wahan jahan vahan
+yaha waha jaha kyunki kyonki kyuki taaki jaise waise aise kaise vaise
+lekin magar par fir phir tabhi abhi kabhi kabhie sabhi sab kuch
+aur ya ki ke ka ko se mein pe par tak liye wala wali wale waala waali
+haan haanji ha nahi nahin nai na naa mat matt
+# time, quantity, everyday nouns
+aaj kal parso subah dopahar shaam raat din hafta mahina saal waqt time
+ghanta minute pal der jaldi dheere roz rozana hamesha kabhi baar dafa
+ek do teen char paanch chhe saat aath nau das sau hazaar
+thoda thodi zyada jyada kam bahut bohot bahot kaafi sirf bas pura poora
+ghar kamra darwaza khidki chhat rasta sadak gaadi gadi bus train dukaan
+bazaar paisa paise rupaye rupya kaam naukri daftar office school college
+padhai exam pariksha result kitaab kitab kalam
+khana roti chawal daal sabzi doodh chai paani pani nashta khaana mithai
+dost dosti yaar bhai behen bahen didi bhaiya bhabhi maa papa pitaji mataji
+mummy dadi nani chacha chachi mama mami beta beti baccha bachche bachchon
+pati patni biwi shaadi shadi rishta parivar ghar wale gharwale
+log aadmi aurat ladka ladki ladke ladkiyan banda bandi
+dil pyaar pyar mohabbat ishq dard khushi gham dukh sapna sapne yaad
+zindagi duniya kismat qismat bhagwan ishwar khuda rab
+# adjectives & adverbs
+accha achha acha acchi achhi achi acche achhe ache badhiya badiya mast
+zabardast shandar shaandaar kamaal bekaar bekar bura buri bure ganda gandi
+sundar khubsurat pyara pyari pyare chhota chhoti chhote bada badi bade
+naya nayi naye purana purani purane lamba lambi garam thanda thandi
+asaan mushkil sasta mehenga mehnga sach jhooth jhoot sahi galat theek thik
+pakka pakki zaroor jarur bilkul ekdum shayad sachme sachmuch waqai
+# feelings / chat expressions
+arre arey are yaar yrr yr bhai bro haha hehe accha acha achha chal chalo
+theek thik hai thikhai okk oye abey abe uff haye hay wah waah shabash
+kya baat hai bas karo chhodo chodo jane do koi nahi koi baat nahi
+pata nahi pta malum maloom samjha samjhi samjhe batao bata dena
+shukriya dhanyavaad dhanyawad meherbani maafi maaf sorry
+namaste namaskar pranam salaam adaab sat sri akal ram ram jai shri
+mubarak badhai badhaiyan shubh subh shubhkamnaye
+khush raho jeete raho dhyan rakhna khayal rakhna apna

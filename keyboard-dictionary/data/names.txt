@@ -35,3 +35,80 @@ Chopra Arora Bhatia Sethi Sood Ahuja Grover Gill Sandhu Sidhu Dhillon
 Grewal Khan Qureshi Siddiqui Ansari Sheikh Syed Mirza Hussain Rizvi
 Fernandes DSouza Pinto Rodrigues Kaur Rawat Negi Bisht Prasad Sinha
 Jha Thakkar Modi Gandhi Nehru Tata Ambani Birla
+
+@@ 105
+# more first names (male)
+Aadi Aakash Aarush Abhay Abhijeet Abhijit Abhinav Achyut Adarsh Advait Agastya
+Ajit Akhil Akhilesh Alankar Amar Ambar Amol Amrit Anirudh Anirban Anshul
+Anupam Anurag Arnav Arpit Ashwin Atul Avinash Ayaan Balaji Balram Bhaskar
+Bhupendra Brijesh Chandan Chandra Chandrashekhar Chirag Daksh Devendra
+Dhananjay Dharmendra Dhiraj Dilip Dushyant Eshwar Gagan Gautam Girish
+Gokul Govind Gurmeet Hardik Harendra Harshad Harshit Himanshu Hitesh Inder
+Indrajit Jagadish Jai Jayant Jayesh Jeevan Jitendra Kailash Kalpesh Kamlesh
+Kapil Kaushal Kaushik Keshav Ketan Krish Kshitij Kuldeep Lalit Madhav
+Mahendra Mahindra Manoranjan Mihir Milind Mithun Mrinal Mukul Murali Nakul
+Nandan Narayan Narendra Navin Neeraj Nilesh Niraj Nishant Omkar Paresh
+Parag Paritosh Parveen Prabhat Pradyumna Pramod Pranay Pratap Pratik
+Prem Prithvi Puneet Pushkar Raghu Raghunath Rajan Rajendra Rajkumar
+Rajnish Ramakrishna Ranbir Ranveer Ratan Ravindra Rishabh Ritik Rupesh
+Sagar Sai Sajan Samir Sanjeev Sankalp Satish Satyam Saurav Shailesh
+Shankar Shantanu Sharad Shashank Shekhar Shivansh Shreyas Shrikant
+Shyam Siddhant Sudhir Sujit Sukhdev Sumeet Sundar Surendra Suraj Surya
+Swapnil Tanmay Tejas Tushar Ujjwal Umang Utkarsh Vaibhav Vasudev Vedant
+Venkat Vibhav Vidyut Vihaan Vineet Vinayak Viraj Virat Vishnu Vishwas
+Yatin Yogendra Yuvraj Zubin
+# more first names (female)
+Aadhya Aakriti Aanya Aarohi Aastha Abha Adhira Alka Amrita Amruta
+Anamika Anandi Anisha Anju Anusha Anvi Aradhana Arpita Arundhati Avni
+Bhagyashree Bhumi Chanchal Chandni Charu Chhaya Damini Devika Dhanashree
+Dimple Disha Durga Ekta Esha Gargi Garima Gayatri Hema Hemlata Indira
+Indu Ira Ishita Jaya Juhi Kalpana Kamala Kanika Kanchan Karishma Kashish
+Ketki Khushi Kiran Kriti Kritika Lata Leela Madhavi Madhuri Mahima
+Malini Mallika Manasi Manju Mansi Mayuri Mitali Mridula Muskan Nalini
+Namrata Nandini Navya Neelam Neetu Nikita Nirmala Nitya Padma Palak
+Parul Pavani Payal Poonam Pragya Prachi Pratibha Pratima Prerna Purnima
+Rachna Radhika Ragini Rajani Rajni Rakhee Ramya Ranjana Ratna Reena
+Renu Revathi Richa Ridhi Rinki Ritika Roshni Ruchi Rupali Sadhana Saloni
+Sandhya Saraswati Sarika Savita Shabnam Shanti Sharmila Sheetal Shivani
+Shobha Shraddha Shweta Smita Sonal Sonali Srishti Stuti Subhadra Sudha
+Suhani Sujata Sulochana Suman Supriya Surbhi Sushma Swara Tanuja Tara
+Trisha Tulsi Uma Urmila Urvashi Vaishali Vani Vasudha Vidhi Vineeta
+Yamini Yashoda
+# Muslim, Sikh, Christian and other names
+Aamir Abdul Adil Afzal Akbar Altaf Amjad Anwar Arshad Asif Aslam Azhar
+Bilal Danish Ejaz Farhan Farooq Feroz Ghulam Habib Hamid Haris Hasan
+Iqbal Ismail Javed Junaid Kabir Kamran Karim Khalid Mansoor Mehboob
+Mustafa Nadeem Nasir Naveed Owais Parvez Rafiq Rahim Rashid Rehan Riyaz
+Rizwan Sajid Salim Saqib Shabbir Shakeel Shoaib Sohail Sultan Tahir
+Tariq Usman Wasim Yasin Yusuf Zaheer Zakir Zubair Zeeshan
+Aafreen Afreen Alia Aliya Amna Anam Asma Bushra Farida Fiza Hina Huma
+Iqra Jasmine Khadija Mahira Mehak Mehreen Muskaan Nargis Nasreen Noor
+Parveen Rabia Rehana Rubina Rukhsana Saba Sadia Saira Salma Samina
+Sameena Shabana Shaheen Shazia Sultana Tabassum Yasmin Zainab Zeenat
+Baljeet Balwinder Gurinder Gurjeet Gurmukh Harbhajan Harjeet Harjit
+Jasbir Jaswant Jaswinder Kuldip Kulwinder Lakhwinder Manjeet Navjot
+Paramjit Rajinder Ranbir Sukhbir Sukhwinder Tejinder Jasleen Navneet
+Kiranjit Rupinder Arshdeep Prabhjot Prabhleen Harleen
+Aaron Alwyn Benny Cyril Dominic Francis Ignatius Jacob Jerome Johnson
+Lawrence Melwyn Nelson Philip Sebastian Shaji Sunny Tony Varghese
+Alphonsa Elizabeth Jessy Lissy Mercy Molly Reena Shiny Sindhu Sophia
+
+# more surnames
+Acharya Adhikari Agnihotri Ahluwalia Awasthi Bajaj Bajpai Bakshi Banerji
+Barua Baruah Basu Bedi Bhalla Bhandari Bhardwaj Bhargava Bhasin Bhatnagar
+Bhonsle Bhosale Biswas Bora Borah Chadha Chandra Chawla Chhabra Dalal
+Dasgupta Dave Deol Deshmukh Dey Dhawan Dhar Dixit Doshi Duggal Gaikwad
+Garg Gill Godbole Gokhale Goswami Gowda Hegde Hooda Iyengar Jaiswal Jindal
+Johar Juneja Kadam Kakkar Kamath Kanojia Kapadia Karnik Kashyap Katiyar
+Kaul Khatri Khurana Kohli Kothari Lal Luthra Mahajan Maheshwari Majumdar
+Malik Mallick Mane Mathur Mehra Menon Mhatre Mistry Mohanty Mondal
+Nagpal Nambiar Nanda Narang Naqvi Oberoi Ojha Pal Panda Pandit Parikh
+Pathak Pathan Patnaik Pillay Poddar Prajapati Puri Purohit Rajput
+Ranade Rana Rastogi Rathi Rathod Raut Rawal Rizvi Saha Sahni Sahu
+Saini Salvi Sanghvi Sawant Sehgal Sengupta Seth Shetty Shekhawat
+Shenoy Shrivastava Sikka Solanki Soni Subramaniam Suri Tandon Thakkar
+Thapar Tiwary Tyagi Upadhyay Vaidya Varma Vashisht Vohra Wadhwa Walia
+Chettiar Gounder Mudaliar Nadar Pillai Thevar Kurup Panicker Warrier
+Namboodiri Chacko Kurian Mathai Thomas Varghese Zachariah
+Kamble Gawde Kulkarni Bhide Apte Phadke Joglekar Sathe Paranjape Kelkar
+Sardesai Kamat Prabhu Pai Bhandarkar Nadkarni

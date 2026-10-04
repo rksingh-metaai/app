@@ -1,0 +1,12 @@
+Word and word-pair frequencies in data/generated/ and output/ are derived from
+the Google Books Ngram Viewer datasets (version 20200217: English Fiction and
+British English 1-grams, English Fiction 2-grams).
+
+  Source:  https://storage.googleapis.com/books/ngrams/books/datasetsv3.html
+  Licence: Creative Commons Attribution 3.0 Unported
+           https://creativecommons.org/licenses/by/3.0/
+
+Required attribution:
+  "Word frequencies derived from the Google Books Ngram dataset (Google, 2020),
+   CC BY 3.0."
+Changes: counts summed over 1990-2019, filtered, normalised and rescaled.
